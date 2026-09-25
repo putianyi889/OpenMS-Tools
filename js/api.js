@@ -11,7 +11,6 @@ async function doFetchVideos(userId) {
   return data;
 }
 
-// loadPageData 保持原样，内部调用 fetchVideos 会自动走队列
 async function loadPageData(onLoaded) {
   const userId = Utils.getUserId();
   if (!userId || isNaN(userId) || Number(userId) < 1) {

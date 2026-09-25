@@ -3,119 +3,149 @@ const Cache = (() => {
   const L = CacheDB.STORE_LISTS;
   const supported = CacheDB.supported;
 
+  /**
+   * 读取用户视频列表。
+   * 不依赖 store key 与 videoIds 元素的类型一致：
+   * 走 userId 索引捞出全部视频，再按 videoIds 顺序重排。
+   */
   async function read(userId) {
     if (!supported) return null;
     try {
-      return await CacheDB.tx([L, V], 'readonly', async t => {
-        const rec = await CacheDB.req(t.objectStore(L).get(String(userId)));
-        if (!rec) return null;
-        const ids = rec.videoIds || [];
-        const videos = ids.length
-          ? await CacheDB.req(t.objectStore(V).getAll(ids))
-          : [];
-        const vmap = new Map(videos.map(v => [v.id, v]));
-        return {
-          data: ids.map(id => vmap.get(id)).filter(Boolean),
-          ts: rec.ts,
-          age: Date.now() - rec.ts,
-        };
-      });
-    } catch (e) { console.warn('缓存读取失败', e); return null; }
+      const uid = String(userId);
+      const rec = await CacheDB.get(L, uid);
+      if (!rec) return null;
+
+      const ids = (rec.videoIds || []).filter(id => id != null);
+      if (!ids.length) {
+        return { data: [], ts: rec.ts, age: Date.now() - rec.ts };
+      }
+
+      // 用索引反查，无视 key 类型
+      const all = await CacheDB.getAllByIndex(V, 'userId', uid);
+      const vmap = new Map();
+      for (const v of all) {
+        // 统一字符串化，兼容 id 为数字/字符串两种情形
+        if (v != null && v.id != null) vmap.set(String(v.id), v);
+      }
+
+      const data = ids
+        .map(id => vmap.get(String(id)))
+        .filter(Boolean);
+
+      return { data, ts: rec.ts, age: Date.now() - rec.ts };
+    } catch (e) {
+      console.warn('缓存读取失败', e);
+      return null;
+    }
   }
 
+  /** 写入：一次事务内同步 put 所有视频 + list */
   async function write(userId, videos) {
     if (!supported || !Array.isArray(videos)) return false;
     try {
-      return await CacheDB.tx([L, V], 'readwrite', t => {
+      await CacheDB.run([L, V], 'readwrite', t => {
         const vstore = t.objectStore(V);
+        const uid = String(userId);
         const ids = [];
         for (const v of videos) {
           if (v == null || v.id == null) continue;
           ids.push(v.id);
-          vstore.put({ ...v, userId: String(userId) });
+          vstore.put({ ...v, userId: uid });
         }
-        t.objectStore(L).put({
-          userId: String(userId),
-          videoIds: ids,
-          ts: Date.now(),
-        });
-        return true;
+        t.objectStore(L).put({ userId: uid, videoIds: ids, ts: Date.now() });
       });
-    } catch (e) { console.warn('缓存写入失败', e); return false; }
+      return true;
+    } catch (e) {
+      console.warn('缓存写入失败', e);
+      return false;
+    }
   }
 
+  /** 删除某用户：先删 list，再走 userId 索引用 cursor 删所有视频 */
   async function remove(userId) {
     if (!supported) return;
     try {
-      await CacheDB.tx([L, V], 'readwrite', t => {
-        t.objectStore(L).delete(String(userId));
+      const uid = String(userId);
+      await CacheDB.run([L, V], 'readwrite', t => {
+        t.objectStore(L).delete(uid);
         const idx = t.objectStore(V).index('userId');
-        idx.openCursor(IDBKeyRange.only(String(userId))).onsuccess = e => {
+        const req = idx.openCursor(IDBKeyRange.only(uid));
+        req.onsuccess = e => {
           const c = e.target.result;
           if (c) { c.delete(); c.continue(); }
         };
       });
-    } catch (e) { console.warn('删除缓存失败', e); }
+    } catch (e) {
+      console.warn('删除缓存失败', e);
+    }
   }
 
   async function clearAll() {
     if (!supported) return;
     try {
-      await CacheDB.tx([L, V], 'readwrite', t => {
+      await CacheDB.run([L, V], 'readwrite', t => {
         t.objectStore(L).clear();
         t.objectStore(V).clear();
       });
-    } catch (e) { console.warn('清空缓存失败', e); }
+    } catch (e) {
+      console.warn('清空缓存失败', e);
+    }
   }
 
+  /**
+   * 列出所有已缓存的用户。
+   * 同样用 userId 索引反查视频，避免 key 类型不一致导致的空结果。
+   */
   async function list() {
     if (!supported) return [];
     try {
-      return await CacheDB.tx([L, V], 'readonly', async t => {
-        const recs = await CacheDB.req(t.objectStore(L).getAll());
-        const vstore = t.objectStore(V);
-        const out = [];
-        for (const rec of recs) {
-          const ids = rec.videoIds || [];
-          const videos = ids.length ? await CacheDB.req(vstore.getAll(ids)) : [];
-          out.push({
-            userId: rec.userId,
-            count: ids.length,
-            size: new Blob([JSON.stringify(videos)]).size,
-            ts: rec.ts,
-            age: Date.now() - rec.ts,
-          });
+      const recs = await CacheDB.getAll(L);
+      const out = [];
+      for (const rec of recs) {
+        const uid = String(rec.userId);
+        const ids = (rec.videoIds || []).filter(id => id != null);
+        let size = 0;
+        if (ids.length) {
+          const all = await CacheDB.getAllByIndex(V, 'userId', uid);
+          size = new Blob([JSON.stringify(all)]).size;
         }
-        return out.sort((a, b) => b.ts - a.ts);
-      });
-    } catch (e) { console.warn('缓存列表失败', e); return []; }
+        out.push({
+          userId: uid,
+          count: ids.length,
+          size,
+          ts: rec.ts,
+          age: Date.now() - rec.ts,
+        });
+      }
+      return out.sort((a, b) => b.ts - a.ts);
+    } catch (e) {
+      console.warn('缓存列表失败', e);
+      return [];
+    }
   }
 
-  /* ---------------- 索引查询（供未来功能使用） ---------------- */
+  /* ---------------- 索引查询 ---------------- */
 
   async function getVideo(videoId) {
     if (!supported) return null;
     try {
-      return await CacheDB.tx([V], 'readonly', t =>
-        CacheDB.req(t.objectStore(V).get(Number(videoId))));
+      // 尝试数字和字符串两种 key
+      let v = await CacheDB.get(V, videoId);
+      if (!v) v = await CacheDB.get(V, String(videoId));
+      return v || null;
     } catch { return null; }
   }
 
   async function getUserVideos(userId) {
     if (!supported) return [];
-    try {
-      return await CacheDB.tx([V], 'readonly', t =>
-        CacheDB.req(t.objectStore(V).index('userId').getAll(String(userId))));
-    } catch { return []; }
+    try { return await CacheDB.getAllByIndex(V, 'userId', String(userId)); }
+    catch { return []; }
   }
 
   async function getUserLevelVideos(userId, level) {
     if (!supported) return [];
     try {
-      return await CacheDB.tx([V], 'readonly', t =>
-        CacheDB.req(t.objectStore(V)
-          .index('userId_level')
-          .getAll([String(userId), level])));
+      return await CacheDB.getAllByIndex(V, 'userId_level', [String(userId), level]);
     } catch { return []; }
   }
 

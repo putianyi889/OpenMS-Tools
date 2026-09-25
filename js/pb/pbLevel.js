@@ -115,6 +115,33 @@ class PBLevel {
            `上传: ${pb.upload_time ?? '—'}`;
   }
 
+  /* ---------------- 色阶 ---------------- */
+
+  /** 当前显示模式对应的色阶名 */
+  getScaleName() {
+    switch (this.displayMode) {
+      case 'time': return `${this.key}_time`; // b_time / i_time / e_time
+      case 'bvs':  return 'bvs';
+      case 'stnb': return 'stnb';
+      case 'rank': return 'rank';
+    }
+    return '';
+  }
+
+  /** 当前模式下用于色阶判断的数值 */
+  getValueForScale(bv, pb) {
+    switch (this.displayMode) {
+      case 'time': return pb.timems / 1000;
+      case 'bvs':  return pb.bv / (pb.timems / 1000);
+      case 'stnb': return this.stnbC * pb.bv / Math.pow(pb.timems / 1000, 1.7);
+      case 'rank': {
+        const r = this.rankMap ? this.rankMap.get(bv) : null;
+        return typeof r === 'number' ? r : null;
+      }
+    }
+    return null;
+  }
+
   /* ---------------- 单元格渲染 ---------------- */
 
   isInRange(bv) {
@@ -136,8 +163,10 @@ class PBLevel {
     const inner = this.getCellText(bv, pb);
     const tip = PBFormat.escapeHtml(this.getCellTooltip(bv, pb));
     const extra = this.getCellClasses(bv, pb).trim();
+    const style = ColorScale.styleFor(this.getValueForScale(bv, pb), this.getScaleName());
     const cls = `pb-cell pb-has${extra ? ' ' + extra : ''}`;
-    return `<div class="${cls}" title="${tip}">${inner}</div>`;
+    const styleAttr = style ? ` style="${style}"` : '';
+    return `<div class="${cls}"${styleAttr} title="${tip}">${inner}</div>`;
   }
 
   get maxTens() {

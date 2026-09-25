@@ -1,4 +1,4 @@
-/** 奖牌榜的行渲染。相同 timems 共享同一名次。 */
+/** 奖牌榜的行渲染。相同 timems 共享同一名次；数值列应用色阶。 */
 const MedalsRenderer = {
   render(records, level) {
     const tbody = document.getElementById('medalBody');
@@ -11,27 +11,40 @@ const MedalsRenderer = {
 
     let prevTimems = null;
     let rank = 0;
+    const timeScale = `${level.key}_time`;
 
     tbody.innerHTML = records.map((r, i) => {
       if (r.timems !== prevTimems) rank = i + 1;
       prevTimems = r.timems;
 
+      const timeSec = r.timems / 1000;
+      const bvsVal = r.bv / timeSec;
+      const stnbVal = level.stnbC * r.bv / Math.pow(timeSec, 1.7);
+
       const t = PBFormat.time(r.timems);
       const bvs = PBFormat.bvs(r.bv, r.timems);
       const s = PBFormat.stnb(level.stnbC, r.bv, r.timems);
       const upload = Utils.fmtDateTime(r.upload_time);
+
       const uid = PBFormat.escapeHtml(r.userId ?? '?');
       const name = PBFormat.escapeHtml(r.player ?? '未知');
 
-      return `<tr class="rank-${rank <= 3 ? rank : 'other'}">
-        <td class="medal-rank">${this.medalIcon(rank)}</td>
+      const rankStyle  = ColorScale.styleFor(rank, 'rank');
+      const timeStyle  = ColorScale.styleFor(timeSec, timeScale);
+      const bvsStyle   = ColorScale.styleFor(bvsVal, 'bvs');
+      const stnbStyle  = ColorScale.styleFor(stnbVal, 'stnb');
+
+      const sc = (s) => s ? ` style="${s}"` : '';
+
+      return `<tr>
+        <td class="medal-rank"${sc(rankStyle)}>${this.medalIcon(rank)}</td>
         <td>
           <a class="user-link" href="stats.html?user_id=${uid}">#${uid}</a>
           <span class="user-name">${name}</span>
         </td>
-        <td class="num">${PBFormat.escapeHtml(t)}</td>
-        <td class="num">${PBFormat.escapeHtml(bvs)}</td>
-        <td class="num">${PBFormat.escapeHtml(s)}</td>
+        <td class="num"${sc(timeStyle)}>${PBFormat.escapeHtml(t)}</td>
+        <td class="num"${sc(bvsStyle)}>${PBFormat.escapeHtml(bvs)}</td>
+        <td class="num"${sc(stnbStyle)}>${PBFormat.escapeHtml(s)}</td>
         <td>${PBFormat.escapeHtml(upload)}</td>
       </tr>`;
     }).join('');

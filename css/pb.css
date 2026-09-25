@@ -74,13 +74,6 @@
   border-color: #58a6ff;
 }
 
-/* ---------- 单元格内部结构片段 ---------- */
-.pb-time {
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-}
-.pb-cell.pb-has:hover .pb-time { color: #58a6ff; }
-
 .pb-badge {
   display: inline-block;
   padding: 0 4px;
@@ -136,26 +129,12 @@
   color: #fff;
 }
 
-/* ---------- 单元格内 BVS 片段 ---------- */
-.pb-bvs {
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  color: #bc8cff;
-}
-.pb-cell.pb-has:hover .pb-bvs { color: #d2a8ff; }
-
-/* ---------- 单元格内 STNB 片段 ---------- */
-.pb-stnb {
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  color: #e3b341;
-}
-.pb-cell.pb-has:hover .pb-stnb { color: #f0c674; }
-
-/* ---------- 单元格内 Rank 片段 ---------- */
+/* 内层片段继承外层 .pb-cell 的颜色（色阶通过 .pb-cell 的行内 style 决定） */
+.pb-time,
+.pb-bvs,
+.pb-stnb,
 .pb-rank {
   font-weight: 600;
   font-variant-numeric: tabular-nums;
-  color: #f0c674;
+  color: inherit;
 }
-.pb-cell.pb-has:hover .pb-rank { color: #ffd97a; }

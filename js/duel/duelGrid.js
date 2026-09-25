@@ -1,4 +1,4 @@
-/** 网格渲染：每行内按 主 → 中（平局 + 空）→ 客 重新排序 */
+/** 网格渲染：行内按 主胜 → 主独占 → 平局/皆无 → 客独占 → 客胜 重排 */
 const DuelGrid = {
   render(level, slots) {
     const range = level.computeRowRange(slots);
@@ -20,12 +20,13 @@ const DuelGrid = {
       row.push(slots.get(bv) || { bv, status: 'empty', hostPB: null, guestPB: null });
     }
 
-    const host  = row.filter(s => s.status === 'host').sort(this.byBv);
-    const both  = row.filter(s => s.status === 'both').sort(this.byBv);
-    const empty = row.filter(s => s.status === 'empty').sort(this.byBv);
-    const guest = row.filter(s => s.status === 'guest').sort(this.byBv);
+    const hostWin   = row.filter(s => s.status === 'host').sort(this.byBv);
+    const hostOnly  = row.filter(s => s.status === 'host_only').sort(this.byBv);
+    const mid       = row.filter(s => s.status === 'both' || s.status === 'empty').sort(this.byBv);
+    const guestOnly = row.filter(s => s.status === 'guest_only').sort(this.byBv);
+    const guestWin  = row.filter(s => s.status === 'guest').sort(this.byBv);
 
-    return [...host, ...both, ...empty, ...guest]
+    return [...hostWin, ...hostOnly, ...mid, ...guestOnly, ...guestWin]
       .map(s => this.renderCell(s)).join('');
   },
 
@@ -36,6 +37,7 @@ const DuelGrid = {
     const lines = [`bv ${bv}`];
     if (hostPB) lines.push(`主方: ${hostPB.timems} ms`);
     if (guestPB) lines.push(`客方: ${guestPB.timems} ms`);
+    if (status === 'host_only' || status === 'guest_only') lines.push('（独占）');
     const tip = DuelGrid.escape(lines.join('\n'));
     return `<div class="duel-cell duel-${status}" title="${tip}">${bv}</div>`;
   },

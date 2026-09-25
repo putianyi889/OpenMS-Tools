@@ -7,14 +7,11 @@
   margin-bottom: 24px;
 }
 .duel-summary-title {
-  font-size: 0.85rem;
-  color: #8b949e;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 10px;
+  font-size: 0.85rem; color: #8b949e;
+  text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px;
 }
 
-/* PK 条 */
+/* PK 条：主方 B 站蓝 / 客方 B 站粉 */
 .duel-pk {
   position: relative;
   height: 30px;
@@ -25,23 +22,19 @@
 }
 .duel-pk-large { height: 44px; border-radius: 8px; }
 .duel-pk-host {
-  background: linear-gradient(90deg, #1f6feb, #58a6ff);
+  background: linear-gradient(90deg, #0091c2, #00aeec);
   transition: width 0.3s ease;
 }
 .duel-pk-guest {
-  background: linear-gradient(90deg, #db6d28, #f0883e);
+  background: linear-gradient(90deg, #e0567e, #fb7299);
   transition: width 0.3s ease;
 }
 .duel-pk-scores {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  position: absolute; inset: 0;
+  display: flex; justify-content: space-between; align-items: center;
   padding: 0 14px;
   pointer-events: none;
-  font-weight: 700;
-  font-size: 0.85rem;
+  font-weight: 700; font-size: 0.85rem;
   font-variant-numeric: tabular-nums;
   color: #fff;
   text-shadow: 0 1px 2px rgba(0,0,0,0.6);
@@ -58,13 +51,9 @@
   overflow-x: auto;
 }
 .duel-title {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #e1e4e8;
+  font-size: 1rem; font-weight: 600; color: #e1e4e8;
   margin-bottom: 12px;
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
+  display: flex; align-items: baseline; gap: 10px;
 }
 .duel-sub { font-size: 0.8rem; color: #8b949e; font-weight: 400; }
 .duel-section .duel-pk { margin-bottom: 14px; }
@@ -77,37 +66,44 @@
   min-width: 560px;
 }
 .duel-row-label {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.65rem;
-  color: #484f58;
-  line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.65rem; color: #484f58; line-height: 1;
 }
 
-/* 单元格：用 --c 控制主题色 */
+/* 单元格：--c 控制主题色 */
 .duel-cell {
-  --c: 88,166,255;
+  --c: 0,174,236;
   padding: 2px 4px;
   border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.72rem;
-  font-weight: 600;
-  line-height: 1.2;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.72rem; font-weight: 600; line-height: 1.2;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
   background: rgba(var(--c), 0.15);
-  border: 1px solid rgba(var(--c), 0.4);
+  border: 1px solid rgba(var(--c), 0.45);
   color: rgb(var(--c));
-  transition: background 0.12s, border-color 0.12s;
+  transition: background 0.12s, border-color 0.12s, opacity 0.12s;
 }
 .duel-cell:hover { background: rgba(var(--c), 0.28); border-color: rgb(var(--c)); }
 
-.duel-host  { --c: 88,166,255; }
-.duel-guest { --c: 240,136,62; }
-.duel-both  { --c: 188,140,255; }
+/* B 站蓝 · 主方 */
+.duel-host { --c: 0,174,236; }
+
+/* B 站粉 · 客方 */
+.duel-guest { --c: 251,114,153; }
+
+/* 黄色 · 平局 */
+.duel-both { --c: 255,192,0; }
+
+/* 独占（0.25 分）：整体半透明 */
+.duel-host_only,
+.duel-guest_only { opacity: 0.5; }
+.duel-host_only  { --c: 0,174,236; }
+.duel-guest_only { --c: 251,114,153; }
+.duel-host_only:hover,
+.duel-guest_only:hover { opacity: 0.85; }
+
+/* 双方都无 */
 .duel-empty {
   --c: 48,54,61;
   background: #10141a;

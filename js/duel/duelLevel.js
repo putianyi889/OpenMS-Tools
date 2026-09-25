@@ -6,7 +6,6 @@ class DuelLevel {
     this.maxBv = maxBv;
   }
 
-  /** 从视频中计算每个 bv 的 PB（timems 最小），返回 Map<bv, video> */
   computePBMap(videos) {
     const key = this.key.toLowerCase();
     const buckets = new Map();
@@ -28,7 +27,6 @@ class DuelLevel {
     return map;
   }
 
-  /** 从已缓存的 PB 记录里筛出属于本等级、本范围的项，返回 Map<bv, record> */
   indexPBs(pbs) {
     const map = new Map();
     for (const r of pbs) {
@@ -40,11 +38,19 @@ class DuelLevel {
     return map;
   }
 
-  /** 比较一个位置，返回 { status, hostScore, guestScore } */
+  /**
+   * status 取值：
+   *  - 'empty'       双方都无
+   *  - 'host'        主方击败客方（1 分）
+   *  - 'guest'       客方击败主方（1 分）
+   *  - 'host_only'   仅主方有 PB（0.25 分，独占）
+   *  - 'guest_only'  仅客方有 PB（0.25 分，独占）
+   *  - 'both'        双方都有且 timems 相同（各 0.5 分）
+   */
   compare(hostPB, guestPB) {
     if (!hostPB && !guestPB) return { status: 'empty', hostScore: 0, guestScore: 0 };
-    if (hostPB && !guestPB)  return { status: 'host',  hostScore: 0.25, guestScore: 0 };
-    if (!hostPB && guestPB)  return { status: 'guest', hostScore: 0, guestScore: 0.25 };
+    if (hostPB && !guestPB)  return { status: 'host_only',  hostScore: 0.25, guestScore: 0 };
+    if (!hostPB && guestPB)  return { status: 'guest_only', hostScore: 0, guestScore: 0.25 };
     if (hostPB.timems === guestPB.timems)
       return { status: 'both', hostScore: 0.5, guestScore: 0.5 };
     return hostPB.timems < guestPB.timems
@@ -52,7 +58,6 @@ class DuelLevel {
       : { status: 'guest', hostScore: 0, guestScore: 1 };
   }
 
-  /** 从原始视频计算（保留，兼容旧调用） */
   computeDuel(hostVideos, guestVideos) {
     return this._computeFromMaps(
       this.computePBMap(hostVideos),
@@ -60,7 +65,6 @@ class DuelLevel {
     );
   }
 
-  /** 从已缓存的 PB 记录计算（新） */
   computeDuelFromPBs(hostPBs, guestPBs) {
     return this._computeFromMaps(
       this.indexPBs(hostPBs),
@@ -70,8 +74,7 @@ class DuelLevel {
 
   _computeFromMaps(hostMap, guestMap) {
     const slots = new Map();
-    let hostTotal = 0;
-    let guestTotal = 0;
+    let hostTotal = 0, guestTotal = 0;
     for (let bv = this.minBv; bv <= this.maxBv; bv++) {
       const h = hostMap.get(bv) || null;
       const g = guestMap.get(bv) || null;

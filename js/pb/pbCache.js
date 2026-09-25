@@ -8,7 +8,8 @@ const PBCache = (() => {
       userId: uid, level: level.key, bv,
       videoId: pb.id ?? null, timems: pb.timems ?? null,
       player: pb.player ?? null, upload_time: pb.upload_time ?? null,
-      rank: null, // 由 recalcAllRanks 填充
+      rank: null,
+      support: false,
     };
   }
 
@@ -55,33 +56,21 @@ const PBCache = (() => {
     if (!supported) return { total: 0, ok: 0, fail: 0, totalPB: 0 };
     const lists = await CacheDB.getAll(L);
     let done = 0, ok = 0, fail = 0, totalPB = 0;
-
     for (const rec of lists) {
       const uid = String(rec.userId);
       try {
         const cached = await Cache.read(uid);
         if (!cached || !Array.isArray(cached.data)) fail++;
-        else {
-          totalPB += await writeFromVideos(uid, cached.data, levels);
-          ok++;
-        }
-      } catch (e) {
-        console.warn(`重算用户 ${uid} 的 PB 失败`, e);
-        fail++;
-      }
+        else { totalPB += await writeFromVideos(uid, cached.data, levels); ok++; }
+      } catch (e) { fail++; }
       done++;
       onProgress && onProgress({ done, total: lists.length, current: uid, ok, fail, totalPB });
     }
     return { total: lists.length, ok, fail, totalPB };
   }
 
-  /**
-   * 重算所有 PB 在其 (level, bv) 下的排名。
-   * 一次 getAll 全量读入 → 内存分组 + 排序 → 批量写回。
-   */
   async function recalcAllRanks(onProgress) {
     if (!supported) return { total: 0, updated: 0 };
-
     const all = await CacheDB.getAll(S);
     const groups = new Map();
     for (const r of all) {
@@ -90,30 +79,22 @@ const PBCache = (() => {
       if (!groups.has(key)) groups.set(key, []);
       groups.get(key).push(r);
     }
-
     const total = groups.size;
     const updates = [];
     let done = 0;
-
     for (const [key, list] of groups) {
-      const valid = list
-        .filter(r => typeof r.timems === 'number')
-        .sort((a, b) => a.timems - b.timems);
-
-      let prevTimems = null, rank = 0;
+      const valid = list.filter(r => typeof r.timems === 'number').sort((a, b) => a.timems - b.timems);
+      let prev = null, rank = 0;
       for (let i = 0; i < valid.length; i++) {
         const rec = valid[i];
-        if (rec.timems !== prevTimems) rank = i + 1;
-        prevTimems = rec.timems;
+        if (rec.timems !== prev) rank = i + 1;
+        prev = rec.timems;
         if (rec.rank !== rank) updates.push({ ...rec, rank });
       }
       done++;
-      if (onProgress && (done % 50 === 0 || done === total)) {
+      if (onProgress && (done % 50 === 0 || done === total))
         onProgress({ done, total, current: key, updated: updates.length });
-      }
     }
-
-    // 分批写回，避免单个事务过大
     const BATCH = 500;
     for (let i = 0; i < updates.length; i += BATCH) {
       const batch = updates.slice(i, i + BATCH);
@@ -122,13 +103,21 @@ const PBCache = (() => {
         for (const u of batch) store.put(u);
       });
     }
-
     onProgress && onProgress({ done: total, total, current: '', updated: updates.length });
     return { total, updated: updates.length };
   }
 
+  /** 读取某用户某等级的支撑线（供可视化使用），按 timems 升序。 */
+  async function getSupportLine(userId, levelKey) {
+    const all = await getByUser(userId);
+    return all
+      .filter(r => r.level === levelKey && r.support === true && typeof r.timems === 'number')
+      .map(r => ({ bv: r.bv, timems: r.timems, bvs: r.bv / (r.timems / 1000) }))
+      .sort((a, b) => a.timems - b.timems);
+  }
+
   return {
     writeFromVideos, getByUser, getByLevelBv, count,
-    recalcAll, recalcAllRanks,
+    recalcAll, recalcAllRanks, getSupportLine,
   };
 })();

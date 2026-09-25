@@ -59,6 +59,15 @@
     <div class="batch-progress" id="rankProgress"></div>
   </div>
 
+  <div class="batch-section">
+    <h3>📐 重算支撑线</h3>
+    <p class="hint">遍历所有已缓存用户，重算 I / E 级的支撑线并写入 pbs.support（B 级不参与）。</p>
+    <div class="controls">
+      <button id="recalcSupportStart" onclick="recalcSupportLinesUI()">重算支撑线</button>
+    </div>
+    <div class="batch-progress" id="supportProgress"></div>
+  </div>
+
   <div class="cache-table-section">
     <table id="cacheTable">
       <thead>
@@ -84,6 +93,7 @@
   <script src="js/pb/pbLevel.js"></script>
   <script src="js/pb/pbLevels.js"></script>
   <script src="js/pb/pbCache.js"></script>
+  <script src="js/pb/supportLine.js"></script>
   <script src="js/cacheManager.js"></script>
   <script src="js/batchLoader.js"></script>
   <script src="js/recalcPBs.js"></script>

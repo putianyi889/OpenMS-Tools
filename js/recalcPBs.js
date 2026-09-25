@@ -75,3 +75,22 @@ function showRecalcResult(targetId, msg, type = '') {
   div.textContent = msg;
   div.className = 'batch-result ' + type;
 }
+
+async function recalcSupportLinesUI() {
+  const btn = document.getElementById('recalcSupportStart');
+  if (!btn || btn.disabled) return;
+  const n = await PBCache.count();
+  if (!n) { showRecalcResult('supportProgress', '没有 PB 记录可重算', 'warn'); return; }
+  if (!confirm(`将重算所有用户的支撑线（共 ${n} 条 PB），是否继续？`)) return;
+  btn.disabled = true;
+  try {
+    const r = await recalcAllSupportLines(PB_LEVELS, p => renderProgress('supportProgress', p));
+    showRecalcResult('supportProgress',
+      `✓ 完成：处理 ${r.total} 个用户，更新 ${r.updated} 条记录`, 'success');
+  } catch (e) {
+    console.error(e);
+    showRecalcResult('supportProgress', `失败: ${e.message}`, 'error');
+  } finally {
+    btn.disabled = false;
+  }
+}

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>支撑线 - 用户视频数据</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/support.css">
+</head>
+<body>
+  <h1>支撑线</h1>
+  <p class="subtitle">
+    横轴 timems · 纵轴 bvs · 每个用户一条线 · I / E 级各一张图 ·
+    <a href="index.html" style="color:#58a6ff;">返回导航</a>
+  </p>
+
+  <div class="controls">
+    <label for="userIds">用户 ID:</label>
+    <input type="text" id="userIds" placeholder="例如 1,2,3" style="width:220px;">
+    <label class="checkbox-label">
+      <input type="checkbox" id="showMerged" checked>
+      显示合并支撑线
+    </label>
+    <button onclick="renderSupport()">绘制</button>
+  </div>
+
+  <div class="status" id="status"></div>
+
+  <div class="support-charts">
+    <div class="support-chart-card" data-level="i">
+      <h3>I 级支撑线</h3>
+      <div class="chart-holder">
+        <canvas id="chart-i"></canvas>
+        <div class="chart-empty" id="empty-i" style="display:none;">暂无数据</div>
+      </div>
+    </div>
+    <div class="support-chart-card" data-level="e">
+      <h3>E 级支撑线</h3>
+      <div class="chart-holder">
+        <canvas id="chart-e"></canvas>
+        <div class="chart-empty" id="empty-e" style="display:none;">暂无数据</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/cacheDb.js"></script>
+  <script src="js/cache.js"></script>
+  <script src="js/pb/pbFormat.js"></script>
+  <script src="js/pb/pbLevel.js"></script>
+  <script src="js/pb/pbLevels.js"></script>
+  <script src="js/pb/pbCache.js"></script>
+  <script src="js/pb/supportLine.js"></script>
+  <script src="js/support/supportRenderer.js"></script>
+  <script src="js/support/supportPage.js"></script>
+</body>
+</html>

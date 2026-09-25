@@ -1,43 +1,43 @@
 .batch-section {
   background: #161b22;
   border: 1px solid #30363d;
-  border-radius: 12px;
-  padding: 18px 20px;
-  margin-bottom: 24px;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
 }
 .batch-section h3 {
-  font-size: 1rem;
+  font-size: 0.92rem;
   font-weight: 600;
   color: #c9d1d9;
-  margin-bottom: 14px;
+  margin-bottom: 8px;
 }
 .batch-section .controls { margin-bottom: 0; }
 
 .checkbox-label {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 0.85rem;
+  gap: 5px;
+  font-size: 0.82rem;
   color: #8b949e;
   cursor: pointer;
   user-select: none;
 }
 .checkbox-label input[type="checkbox"] {
   accent-color: #58a6ff;
-  width: 15px;
-  height: 15px;
+  width: 14px;
+  height: 14px;
   cursor: pointer;
 }
 
-.batch-progress { margin-top: 14px; }
+.batch-progress { margin-top: 8px; }
 .batch-progress:empty { display: none; }
 
 .progress-bar {
-  height: 8px;
+  height: 6px;
   background: #21262d;
-  border-radius: 4px;
+  border-radius: 3px;
   overflow: hidden;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
 }
 .progress-bar-fill {
   height: 100%;
@@ -48,8 +48,8 @@
 .progress-stats {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
-  font-size: 0.85rem;
+  gap: 12px;
+  font-size: 0.8rem;
   color: #8b949e;
   font-variant-numeric: tabular-nums;
 }
@@ -58,10 +58,7 @@
 .progress-stats .skip { color: #d29922; }
 .progress-stats .current { color: #58a6ff; }
 
-.batch-result {
-  margin-top: 12px;
-  font-size: 0.9rem;
-}
+.batch-result { margin-top: 8px; font-size: 0.85rem; }
 .batch-result.success { color: #3fb950; }
 .batch-result.warn { color: #d29922; }
 .batch-result.error { color: #f85149; }

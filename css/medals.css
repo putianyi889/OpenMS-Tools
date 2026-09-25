@@ -2,9 +2,9 @@
   background: #1c2128;
   border: 1px solid #30363d;
   color: #e1e4e8;
-  padding: 8px 12px;
-  border-radius: 8px;
-  font-size: 0.95rem;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 0.88rem;
   font-family: inherit;
   outline: none;
   cursor: pointer;
@@ -15,35 +15,35 @@
 .medal-table-section {
   background: #161b22;
   border: 1px solid #30363d;
-  border-radius: 12px;
-  padding: 18px;
+  border-radius: 10px;
+  padding: 10px 12px;
   overflow-x: auto;
 }
 
 #medalTable {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }
 #medalTable th {
   text-align: left;
-  padding: 10px 12px;
+  padding: 6px 10px;
   color: #8b949e;
   font-weight: 500;
   border-bottom: 1px solid #30363d;
   white-space: nowrap;
 }
 #medalTable td {
-  padding: 10px 12px;
+  padding: 6px 10px;
   border-bottom: 1px solid #21262d;
   color: #c9d1d9;
   white-space: nowrap;
 }
 #medalTable tr:hover td { background: #1c2128; }
 
-.col-rank { width: 60px; text-align: center; }
-.col-num  { width: 110px; text-align: right; }
-.col-time { width: 180px; }
+.col-rank { width: 54px; text-align: center; }
+.col-num  { width: 100px; text-align: right; }
+.col-time { width: 160px; }
 
 td.num {
   text-align: right;
@@ -56,9 +56,9 @@ td.num {
   color: #8b949e;
   font-variant-numeric: tabular-nums;
 }
-tr.rank-1 .medal-rank { color: #f0c674; font-size: 1.15rem; }
-tr.rank-2 .medal-rank { color: #c9d1d9; font-size: 1.15rem; }
-tr.rank-3 .medal-rank { color: #d29922; font-size: 1.15rem; }
+tr.rank-1 .medal-rank { color: #f0c674; font-size: 1.05rem; }
+tr.rank-2 .medal-rank { color: #c9d1d9; font-size: 1.05rem; }
+tr.rank-3 .medal-rank { color: #d29922; font-size: 1.05rem; }
 
 .user-link {
   color: #58a6ff;
@@ -73,5 +73,5 @@ tr.rank-3 .medal-rank { color: #d29922; font-size: 1.15rem; }
 .medal-empty {
   text-align: center;
   color: #484f58;
-  padding: 40px 20px !important;
+  padding: 24px 16px !important;
 }

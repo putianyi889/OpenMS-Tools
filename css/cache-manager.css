@@ -1,52 +1,50 @@
 .summary {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 16px;
-  margin-bottom: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
 }
 .summary .stat-card {
   background: #161b22;
   border: 1px solid #30363d;
-  border-radius: 12px;
-  padding: 16px 20px;
+  border-radius: 10px;
+  padding: 10px 12px;
 }
 .summary .stat-card .label {
-  font-size: 0.8rem; color: #8b949e;
-  text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;
+  font-size: 0.72rem; color: #8b949e;
+  text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 2px;
 }
-.summary .stat-card .value {
-  font-size: 1.6rem; font-weight: 700; color: #e1e4e8;
-}
+.summary .stat-card .value { font-size: 1.3rem; font-weight: 700; color: #e1e4e8; }
 
 .cache-table-section {
   background: #161b22;
   border: 1px solid #30363d;
-  border-radius: 12px;
-  padding: 18px;
+  border-radius: 10px;
+  padding: 10px 12px;
   overflow-x: auto;
 }
-#cacheTable { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+#cacheTable { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
 #cacheTable th {
-  text-align: left; padding: 10px 12px;
+  text-align: left; padding: 6px 10px;
   color: #8b949e; font-weight: 500;
   border-bottom: 1px solid #30363d;
   white-space: nowrap;
 }
 #cacheTable td {
-  padding: 12px;
+  padding: 6px 10px;
   border-bottom: 1px solid #21262d;
   color: #c9d1d9;
   white-space: nowrap;
   vertical-align: middle;
 }
 #cacheTable tr:hover td { background: #1c2128; }
-.muted { color: #8b949e; font-size: 0.8rem; }
+.muted { color: #8b949e; font-size: 0.78rem; }
 
 .actions { display: flex; gap: 10px; }
 .btn-link {
   background: none; border: none; padding: 0;
   color: #58a6ff; cursor: pointer;
-  text-decoration: none; font-size: 0.85rem;
+  text-decoration: none; font-size: 0.82rem;
   font-family: inherit;
 }
 .btn-link:hover { text-decoration: underline; }
@@ -58,7 +56,7 @@ button.danger {
 }
 
 .batch-section .hint {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: #8b949e;
-  margin-bottom: 14px;
+  margin-bottom: 8px;
 }

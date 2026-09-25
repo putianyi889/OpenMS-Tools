@@ -1,27 +1,27 @@
 .pb-section {
   background: #161b22;
   border: 1px solid #30363d;
-  border-radius: 12px;
-  padding: 18px 20px;
-  margin-bottom: 24px;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
   overflow-x: auto;
 }
 
 .pb-title {
-  font-size: 1rem;
+  font-size: 0.92rem;
   font-weight: 600;
   color: #e1e4e8;
-  margin-bottom: 14px;
+  margin-bottom: 8px;
   display: flex;
   align-items: baseline;
-  gap: 10px;
+  gap: 8px;
 }
-.pb-sub { font-size: 0.8rem; color: #8b949e; font-weight: 400; }
+.pb-sub { font-size: 0.75rem; color: #8b949e; font-weight: 400; }
 
 .pb-grid {
   display: grid;
   grid-template-columns: 20px repeat(10, minmax(56px, 1fr));
-  gap: 3px;
+  gap: 2px;
   min-width: 560px;
 }
 
@@ -39,24 +39,20 @@
 }
 
 .pb-cell {
-  padding: 1px 4px;
+  padding: 0 4px;
   border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: 3px;
   font-size: 0.72rem;
-  line-height: 1.15;
+  line-height: 1.4;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
   transition: background 0.12s, border-color 0.12s;
 }
 
-.pb-cell.pb-empty {
-  background: transparent;
-  padding: 0;
-  min-height: 1.15em;
-}
+.pb-cell.pb-empty { background: transparent; padding: 0; min-height: 1.4em; }
 
 .pb-cell.pb-missing {
   background: #10141a;
@@ -74,6 +70,16 @@
   border-color: #58a6ff;
 }
 
+/* 内层片段：颜色继承外层（色阶通过行内 style 决定） */
+.pb-time,
+.pb-bvs,
+.pb-stnb,
+.pb-rank {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: inherit;
+}
+
 .pb-badge {
   display: inline-block;
   padding: 0 4px;
@@ -88,53 +94,39 @@
 .pb-badge.warn { background: rgba(210,153,34,0.2); color: #d29922; }
 .pb-badge.good { background: rgba(63,185,80,0.2);  color: #3fb950; }
 
-.pb-grid-empty {
-  padding: 12px 4px;
-  font-size: 0.85rem;
-  color: #484f58;
-}
-
-@media (max-width: 600px) {
-  .pb-grid { gap: 2px; min-width: 480px; }
-  .pb-cell { font-size: 0.65rem; padding: 1px 2px; gap: 2px; }
-  .pb-col-label, .pb-row-label { font-size: 0.6rem; }
-  .pb-badge { font-size: 0.55rem; padding: 0 3px; }
-}
-
-/* ---------- 显示模式切换 ---------- */
+/* 显示模式切换 */
 .mode-label {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: #8b949e;
 }
-
 .pb-mode-switch {
   display: inline-flex;
   border: 1px solid #30363d;
-  border-radius: 8px;
+  border-radius: 6px;
   overflow: hidden;
 }
 .pb-mode-switch button {
   background: #161b22;
   border: none;
   color: #8b949e;
-  padding: 6px 14px;
-  font-size: 0.85rem;
+  padding: 4px 10px;
+  font-size: 0.8rem;
   font-family: inherit;
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
 }
 .pb-mode-switch button:hover { color: #e1e4e8; }
-.pb-mode-switch button.active {
-  background: #1f6feb;
-  color: #fff;
+.pb-mode-switch button.active { background: #1f6feb; color: #fff; }
+
+.pb-grid-empty {
+  padding: 8px 4px;
+  font-size: 0.82rem;
+  color: #484f58;
 }
 
-/* 内层片段继承外层 .pb-cell 的颜色（色阶通过 .pb-cell 的行内 style 决定） */
-.pb-time,
-.pb-bvs,
-.pb-stnb,
-.pb-rank {
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  color: inherit;
+@media (max-width: 600px) {
+  .pb-grid { gap: 1px; min-width: 480px; }
+  .pb-cell { font-size: 0.65rem; padding: 0 2px; }
+  .pb-col-label, .pb-row-label { font-size: 0.6rem; }
+  .pb-badge { font-size: 0.55rem; padding: 0 3px; }
 }

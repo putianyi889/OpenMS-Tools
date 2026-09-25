@@ -26,27 +26,21 @@ async function initDuelPage() {
 
   document.getElementById('duelForm').style.display = 'none';
 
-  // 显示"排队中"提示：如果 400ms 还没到第一个进度点，说明在等待队列
-  let queueHint = setTimeout(() => {
-    Utils.setStatus('排队中，网络请求间隔 1 秒...', '');
-  }, 400);
-
+  const phaseLabel = { videos: '视频', pbs: 'PB' };
   try {
-    const { id1: h, id2: g, data1, data2 } = await loadDuelData((i, total, uid) => {
-      clearTimeout(queueHint);
-      Utils.setStatus(`已加载 ${i}/${total}（用户 #${uid}）`);
-      queueHint = setTimeout(() => {
-        Utils.setStatus(`等待下一个请求（间隔 1 秒）...`);
-      }, 400);
-    });
-    clearTimeout(queueHint);
+    const { id1: h, id2: g, pbs1, pbs2, videos1, videos2 } =
+      await loadDuelData((i, total, uid, phase) => {
+        Utils.setStatus(
+          `${i}/${total} · 用户 #${uid} · 加载${phaseLabel[phase] || phase}`
+        );
+      });
     Utils.setStatus(
-      `✓ 主方 #${h}（${data1.length} 条） vs 客方 #${g}（${data2.length} 条）`,
+      `✓ 主方 #${h}（${videos1.length} 视频 / ${pbs1.length} PB） vs ` +
+      `客方 #${g}（${videos2.length} 视频 / ${pbs2.length} PB）`,
       'success'
     );
-    duelRenderer.renderAll(data1, data2);
+    duelRenderer.renderAll(pbs1, pbs2);
   } catch (err) {
-    clearTimeout(queueHint);
     console.error(err);
     Utils.setStatus(`加载失败: ${err.message}`, 'error');
   }

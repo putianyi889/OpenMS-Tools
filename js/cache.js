@@ -61,35 +61,40 @@ const Cache = (() => {
     }
   }
 
-  /** 删除某用户：先删 list，再走 userId 索引用 cursor 删所有视频 */
+  /** 删除某用户：连同其 PB 一起删 */
   async function remove(userId) {
     if (!supported) return;
     try {
       const uid = String(userId);
-      await CacheDB.run([L, V], 'readwrite', t => {
+      await CacheDB.run([L, V, 'pbs'], 'readwrite', t => {
         t.objectStore(L).delete(uid);
-        const idx = t.objectStore(V).index('userId');
-        const req = idx.openCursor(IDBKeyRange.only(uid));
-        req.onsuccess = e => {
+
+        const vIdx = t.objectStore(V).index('userId');
+        const vr = vIdx.openCursor(IDBKeyRange.only(uid));
+        vr.onsuccess = e => {
+          const c = e.target.result;
+          if (c) { c.delete(); c.continue(); }
+        };
+
+        const pIdx = t.objectStore('pbs').index('userId');
+        const pr = pIdx.openCursor(IDBKeyRange.only(uid));
+        pr.onsuccess = e => {
           const c = e.target.result;
           if (c) { c.delete(); c.continue(); }
         };
       });
-    } catch (e) {
-      console.warn('删除缓存失败', e);
-    }
+    } catch (e) { console.warn('删除缓存失败', e); }
   }
 
   async function clearAll() {
     if (!supported) return;
     try {
-      await CacheDB.run([L, V], 'readwrite', t => {
+      await CacheDB.run([L, V, 'pbs'], 'readwrite', t => {
         t.objectStore(L).clear();
         t.objectStore(V).clear();
+        t.objectStore('pbs').clear();
       });
-    } catch (e) {
-      console.warn('清空缓存失败', e);
-    }
+    } catch (e) { console.warn('清空缓存失败', e); }
   }
 
   /**

@@ -3,10 +3,10 @@ class DuelRenderer {
     this.levels = levels;
   }
 
-  renderAll(hostVideos, guestVideos) {
+  renderAll(hostPBs, guestPBs) {
     const results = this.levels.map(level => ({
       level,
-      result: level.computeDuel(hostVideos, guestVideos),
+      result: level.computeDuelFromPBs(hostPBs, guestPBs),
     }));
 
     this.renderSummary(results);

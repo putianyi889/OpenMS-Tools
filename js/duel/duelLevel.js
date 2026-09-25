@@ -1,6 +1,3 @@
-/**
- * 一个等级的互啄计算：每个 bv 位置上，主客双方 PB 的胜负与得分。
- */
 class DuelLevel {
   constructor({ key, label, minBv, maxBv }) {
     this.key = key;
@@ -9,7 +6,7 @@ class DuelLevel {
     this.maxBv = maxBv;
   }
 
-  /** 从一组视频中，计算该等级下每个 bv 的 PB（timems 最小） */
+  /** 从视频中计算每个 bv 的 PB（timems 最小），返回 Map<bv, video> */
   computePBMap(videos) {
     const key = this.key.toLowerCase();
     const buckets = new Map();
@@ -31,7 +28,19 @@ class DuelLevel {
     return map;
   }
 
-  /** 比较一个位置：返回 { status, hostScore, guestScore } */
+  /** 从已缓存的 PB 记录里筛出属于本等级、本范围的项，返回 Map<bv, record> */
+  indexPBs(pbs) {
+    const map = new Map();
+    for (const r of pbs) {
+      if (!r || r.level !== this.key) continue;
+      const bv = Number(r.bv);
+      if (!Number.isFinite(bv) || bv < this.minBv || bv > this.maxBv) continue;
+      map.set(bv, r);
+    }
+    return map;
+  }
+
+  /** 比较一个位置，返回 { status, hostScore, guestScore } */
   compare(hostPB, guestPB) {
     if (!hostPB && !guestPB) return { status: 'empty', hostScore: 0, guestScore: 0 };
     if (hostPB && !guestPB)  return { status: 'host',  hostScore: 0.25, guestScore: 0 };
@@ -43,14 +52,26 @@ class DuelLevel {
       : { status: 'guest', hostScore: 0, guestScore: 1 };
   }
 
-  /** 计算该等级的完整互啄结果 */
+  /** 从原始视频计算（保留，兼容旧调用） */
   computeDuel(hostVideos, guestVideos) {
-    const hostMap = this.computePBMap(hostVideos);
-    const guestMap = this.computePBMap(guestVideos);
+    return this._computeFromMaps(
+      this.computePBMap(hostVideos),
+      this.computePBMap(guestVideos)
+    );
+  }
+
+  /** 从已缓存的 PB 记录计算（新） */
+  computeDuelFromPBs(hostPBs, guestPBs) {
+    return this._computeFromMaps(
+      this.indexPBs(hostPBs),
+      this.indexPBs(guestPBs)
+    );
+  }
+
+  _computeFromMaps(hostMap, guestMap) {
     const slots = new Map();
     let hostTotal = 0;
     let guestTotal = 0;
-
     for (let bv = this.minBv; bv <= this.maxBv; bv++) {
       const h = hostMap.get(bv) || null;
       const g = guestMap.get(bv) || null;
@@ -62,10 +83,8 @@ class DuelLevel {
     return { slots, hostTotal, guestTotal };
   }
 
-  /** 有任意一方占领的十位范围，仅用于裁剪首尾空行 */
   computeRowRange(slots) {
-    let minTens = Infinity;
-    let maxTens = -Infinity;
+    let minTens = Infinity, maxTens = -Infinity;
     for (const s of slots.values()) {
       if (s.status === 'empty') continue;
       const tens = Math.floor(s.bv / 10);

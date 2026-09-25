@@ -41,5 +41,11 @@ if (document.getElementById('pbContent')) {
   loadPageData(data => {
     currentData = data;
     pbRenderer.renderAll(document.getElementById('pbContent'), data);
+
+    // 后台计算并缓存该用户的 PB，不阻塞渲染
+    const uid = Utils.getUserId();
+    PBCache.writeFromVideos(uid, data, PB_LEVELS)
+      .then(n => console.log(`已缓存 ${n} 条 PB（用户 ${uid}）`))
+      .catch(e => console.warn('PB 缓存失败', e));
   });
 }

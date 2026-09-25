@@ -50,6 +50,15 @@
     <div class="batch-progress" id="recalcProgress"></div>
   </div>
 
+  <div class="batch-section">
+    <h3>🏆 刷新排行</h3>
+    <p class="hint">重算每条 PB 在其 (level, bv) 下的排名，写入 pbs 缓存。</p>
+    <div class="controls">
+      <button id="recalcRanksStart" onclick="recalcAllRanksUI()">刷新排行</button>
+    </div>
+    <div class="batch-progress" id="rankProgress"></div>
+  </div>
+
   <div class="cache-table-section">
     <table id="cacheTable">
       <thead>

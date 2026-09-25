@@ -1,17 +1,8 @@
 /**
  * 一个等级的 PB 计算 + 单元格渲染配置。
- * 三种显示模式：'time' | 'bvs' | 'stnb'。
- * 子类可覆写 selectPB / getCellText / renderCell 等。
+ * 显示模式：'time' | 'bvs' | 'stnb' | 'rank'。
  */
 class PBLevel {
-  /**
-   * @param {Object} cfg
-   * @param {string} cfg.key
-   * @param {string} cfg.label
-   * @param {number} cfg.minBv
-   * @param {number} cfg.maxBv
-   * @param {number} cfg.stnbC   STNB 公式中的系数
-   */
   constructor({ key, label, minBv, maxBv, stnbC }) {
     this.key = key;
     this.label = label;
@@ -19,7 +10,10 @@ class PBLevel {
     this.maxBv = maxBv;
     this.stnbC = stnbC;
     this.displayMode = 'time';
+    this.rankMap = new Map(); // Map<bv, rank>
   }
+
+  static MODES = ['time', 'bvs', 'stnb', 'rank'];
 
   /* ---------------- 计算 ---------------- */
 
@@ -64,10 +58,13 @@ class PBLevel {
 
   /* ---------------- 显示模式 ---------------- */
 
-  static MODES = ['time', 'bvs', 'stnb'];
-
   setDisplayMode(mode) {
     this.displayMode = PBLevel.MODES.includes(mode) ? mode : 'time';
+  }
+
+  /** 注入本等级下 bv → rank 的映射；传空则清空 */
+  setRankMap(map) {
+    this.rankMap = map instanceof Map ? map : new Map();
   }
 
   /* ---------------- 单元格内容片段 ---------------- */
@@ -76,6 +73,7 @@ class PBLevel {
     switch (this.displayMode) {
       case 'bvs':  return this.renderBvs(bv, pb);
       case 'stnb': return this.renderStnb(bv, pb);
+      case 'rank': return this.renderRank(bv, pb);
       default:     return this.renderTime(pb);
     }
   }
@@ -93,20 +91,27 @@ class PBLevel {
     return `<span class="pb-stnb">${PBFormat.escapeHtml(v)}</span>`;
   }
 
+  renderRank(bv /*, pb */) {
+    const r = this.rankMap ? this.rankMap.get(bv) : null;
+    const text = typeof r === 'number' ? String(r) : '—';
+    return `<span class="pb-rank">${PBFormat.escapeHtml(text)}</span>`;
+  }
+
   renderBadge(text, extraClass = '') {
     return `<span class="pb-badge ${extraClass}">${PBFormat.escapeHtml(text)}</span>`;
   }
 
-  /** tooltip 同时展示三种指标，不受当前显示模式影响 */
   getCellTooltip(bv, pb) {
     if (!pb) return `bv ${bv} · 无记录`;
     const t = PBFormat.time(pb.timems);
     const b = PBFormat.bvs(bv, pb.timems);
     const s = PBFormat.stnb(this.stnbC, bv, pb.timems);
+    const r = this.rankMap ? this.rankMap.get(bv) : null;
     return `bv ${bv}\n玩家: ${pb.player ?? '—'}\n` +
            `time: ${t} s (${pb.timems} ms)\n` +
            `bvs: ${b}\n` +
            `stnb: ${s}\n` +
+           `排名: ${typeof r === 'number' ? r : '未计算'}\n` +
            `上传: ${pb.upload_time ?? '—'}`;
   }
 

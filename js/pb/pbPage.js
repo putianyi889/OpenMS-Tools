@@ -1,6 +1,7 @@
 const pbRenderer = new PBRenderer(PB_LEVELS);
 const MODE_KEY = 'openms_pb_display_mode';
 let currentData = null;
+let currentMode = 'time';
 
 function getInitialMode() {
   const url = new URLSearchParams(location.search).get('display');
@@ -13,6 +14,7 @@ function getInitialMode() {
 }
 
 function applyMode(mode) {
+  currentMode = mode;
   PB_LEVELS.forEach(lv => lv.setDisplayMode(mode));
   try { localStorage.setItem(MODE_KEY, mode); } catch {}
 
@@ -22,6 +24,19 @@ function applyMode(mode) {
 
   if (currentData) {
     pbRenderer.renderAll(document.getElementById('pbContent'), currentData);
+  }
+}
+
+/** 从 pbs 缓存里取出每个等级的 bv → rank 映射 */
+function applyRankMaps(pbs) {
+  for (const level of PB_LEVELS) {
+    const map = new Map();
+    for (const r of pbs) {
+      if (r.level === level.key && typeof r.rank === 'number') {
+        map.set(Number(r.bv), r.rank);
+      }
+    }
+    level.setRankMap(map);
   }
 }
 
@@ -35,17 +50,32 @@ function setupModeSwitch() {
   });
 }
 
+/** 后台加载 pbs 缓存并注入 rank；若当前为 rank 模式则重渲染 */
+async function loadRanks(videos) {
+  const uid = Utils.getUserId();
+  if (!uid) return;
+  try {
+    let pbs = await PBCache.getByUser(uid);
+    if (!pbs.length && videos.length) {
+      // 首次访问：计算 PB 并写入（此时 rank 为 null）
+      await PBCache.writeFromVideos(uid, videos, PB_LEVELS);
+      pbs = await PBCache.getByUser(uid);
+    }
+    applyRankMaps(pbs);
+    if (currentMode === 'rank') {
+      pbRenderer.renderAll(document.getElementById('pbContent'), videos);
+    }
+  } catch (e) {
+    console.warn('加载 PB 排名失败', e);
+  }
+}
+
 if (document.getElementById('pbContent')) {
   setupModeSwitch();
   applyMode(getInitialMode());
-  loadPageData(data => {
-    currentData = data;
-    pbRenderer.renderAll(document.getElementById('pbContent'), data);
-
-    // 后台计算并缓存该用户的 PB，不阻塞渲染
-    const uid = Utils.getUserId();
-    PBCache.writeFromVideos(uid, data, PB_LEVELS)
-      .then(n => console.log(`已缓存 ${n} 条 PB（用户 ${uid}）`))
-      .catch(e => console.warn('PB 缓存失败', e));
+  loadPageData(videos => {
+    currentData = videos;
+    pbRenderer.renderAll(document.getElementById('pbContent'), videos);
+    loadRanks(videos);
   });
 }

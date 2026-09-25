@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>互啄 PK - 用户视频数据</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/duel.css">
+</head>
+<body>
+  <h1>互啄 PK</h1>
+  <p class="subtitle">
+    每个 bv 位置的 PB 对比 · 
+    <a href="index.html" style="color:#58a6ff;">返回导航</a>
+  </p>
+
+  <div id="duelForm" style="display:none;">
+    <div class="controls">
+      <label>主方 ID:</label>
+      <input type="number" id="user1" value="1" min="1">
+      <label>客方 ID:</label>
+      <input type="number" id="user2" value="2" min="1">
+      <button onclick="startDuel()">开始 PK</button>
+    </div>
+  </div>
+
+  <div id="duelSummary"></div>
+  <div class="status" id="status"></div>
+  <div id="duelContent"></div>
+
+  <script src="js/utils.js"></script>
+  <script src="js/cache.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/duel/duelLevel.js"></script>
+  <script src="js/duel/duelLevels.js"></script>
+  <script src="js/duel/duelGrid.js"></script>
+  <script src="js/duel/duelLoader.js"></script>
+  <script src="js/duel/duelRenderer.js"></script>
+  <script src="js/duel/duelPage.js"></script>
+</body>
+</html>

@@ -1,0 +1,130 @@
+/* 顶部总分卡片 */
+.duel-summary {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 12px;
+  padding: 20px 22px;
+  margin-bottom: 24px;
+}
+.duel-summary-title {
+  font-size: 0.85rem;
+  color: #8b949e;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 10px;
+}
+
+/* PK 条 */
+.duel-pk {
+  position: relative;
+  height: 30px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #21262d;
+  display: flex;
+}
+.duel-pk-large { height: 44px; border-radius: 8px; }
+.duel-pk-host {
+  background: linear-gradient(90deg, #1f6feb, #58a6ff);
+  transition: width 0.3s ease;
+}
+.duel-pk-guest {
+  background: linear-gradient(90deg, #db6d28, #f0883e);
+  transition: width 0.3s ease;
+}
+.duel-pk-scores {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 14px;
+  pointer-events: none;
+  font-weight: 700;
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+}
+.duel-pk-large .duel-pk-scores { font-size: 1.1rem; padding: 0 18px; }
+
+/* 级别卡片 */
+.duel-section {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 12px;
+  padding: 18px 20px;
+  margin-bottom: 24px;
+  overflow-x: auto;
+}
+.duel-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #e1e4e8;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.duel-sub { font-size: 0.8rem; color: #8b949e; font-weight: 400; }
+.duel-section .duel-pk { margin-bottom: 14px; }
+
+/* 网格 */
+.duel-grid {
+  display: grid;
+  grid-template-columns: 20px repeat(10, minmax(52px, 1fr));
+  gap: 3px;
+  min-width: 560px;
+}
+.duel-row-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  color: #484f58;
+  line-height: 1;
+}
+
+/* 单元格：用 --c 控制主题色 */
+.duel-cell {
+  --c: 88,166,255;
+  padding: 2px 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  background: rgba(var(--c), 0.15);
+  border: 1px solid rgba(var(--c), 0.4);
+  color: rgb(var(--c));
+  transition: background 0.12s, border-color 0.12s;
+}
+.duel-cell:hover { background: rgba(var(--c), 0.28); border-color: rgb(var(--c)); }
+
+.duel-host  { --c: 88,166,255; }
+.duel-guest { --c: 240,136,62; }
+.duel-both  { --c: 188,140,255; }
+.duel-empty {
+  --c: 48,54,61;
+  background: #10141a;
+  border-color: #21262d;
+  color: #30363d;
+  font-weight: 400;
+}
+.duel-empty:hover { background: #10141a; border-color: #21262d; }
+
+.duel-grid-empty {
+  padding: 12px 4px;
+  font-size: 0.85rem;
+  color: #484f58;
+}
+
+@media (max-width: 600px) {
+  .duel-grid { gap: 2px; min-width: 480px; }
+  .duel-cell { font-size: 0.65rem; padding: 1px 2px; }
+  .duel-row-label { font-size: 0.6rem; }
+}

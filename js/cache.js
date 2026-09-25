@@ -1,76 +1,125 @@
 const Cache = (() => {
-  const DB_NAME = 'openms_video_cache';
-  const DB_VERSION = 1;
-  const STORE = 'videos';
-  const supported = typeof indexedDB !== 'undefined';
-  let dbPromise = null;
-
-  function openDB() {
-    if (dbPromise) return dbPromise;
-    dbPromise = new Promise((resolve, reject) => {
-      const req = indexedDB.open(DB_NAME, DB_VERSION);
-      req.onupgradeneeded = e => {
-        const db = e.target.result;
-        if (!db.objectStoreNames.contains(STORE))
-          db.createObjectStore(STORE, { keyPath: 'userId' });
-      };
-      req.onsuccess = e => resolve(e.target.result);
-      req.onerror = e => reject(e.target.error);
-    });
-    return dbPromise;
-  }
-
-  function tx(mode, fn) {
-    return openDB().then(db => new Promise((resolve, reject) => {
-      const t = db.transaction(STORE, mode);
-      let result;
-      try { result = fn(t.objectStore(STORE)); }
-      catch (e) { reject(e); return; }
-      t.oncomplete = () => resolve(result && result.result);
-      t.onerror = () => reject(t.error);
-    }));
-  }
+  const V = CacheDB.STORE_VIDEOS;
+  const L = CacheDB.STORE_LISTS;
+  const supported = CacheDB.supported;
 
   async function read(userId) {
     if (!supported) return null;
     try {
-      const r = await tx('readonly', s => s.get(String(userId)));
-      if (!r) return null;
-      return { data: r.data, ts: r.ts, age: Date.now() - r.ts };
+      return await CacheDB.tx([L, V], 'readonly', async t => {
+        const rec = await CacheDB.req(t.objectStore(L).get(String(userId)));
+        if (!rec) return null;
+        const ids = rec.videoIds || [];
+        const videos = ids.length
+          ? await CacheDB.req(t.objectStore(V).getAll(ids))
+          : [];
+        const vmap = new Map(videos.map(v => [v.id, v]));
+        return {
+          data: ids.map(id => vmap.get(id)).filter(Boolean),
+          ts: rec.ts,
+          age: Date.now() - rec.ts,
+        };
+      });
     } catch (e) { console.warn('缓存读取失败', e); return null; }
   }
 
-  async function write(userId, data) {
-    if (!supported) return false;
+  async function write(userId, videos) {
+    if (!supported || !Array.isArray(videos)) return false;
     try {
-      await tx('readwrite', s => s.put({ userId: String(userId), data, ts: Date.now() }));
-      return true;
+      return await CacheDB.tx([L, V], 'readwrite', t => {
+        const vstore = t.objectStore(V);
+        const ids = [];
+        for (const v of videos) {
+          if (v == null || v.id == null) continue;
+          ids.push(v.id);
+          vstore.put({ ...v, userId: String(userId) });
+        }
+        t.objectStore(L).put({
+          userId: String(userId),
+          videoIds: ids,
+          ts: Date.now(),
+        });
+        return true;
+      });
     } catch (e) { console.warn('缓存写入失败', e); return false; }
   }
 
   async function remove(userId) {
     if (!supported) return;
-    try { await tx('readwrite', s => s.delete(String(userId))); } catch {}
+    try {
+      await CacheDB.tx([L, V], 'readwrite', t => {
+        t.objectStore(L).delete(String(userId));
+        const idx = t.objectStore(V).index('userId');
+        idx.openCursor(IDBKeyRange.only(String(userId))).onsuccess = e => {
+          const c = e.target.result;
+          if (c) { c.delete(); c.continue(); }
+        };
+      });
+    } catch (e) { console.warn('删除缓存失败', e); }
   }
 
   async function clearAll() {
     if (!supported) return;
-    try { await tx('readwrite', s => s.clear()); } catch {}
+    try {
+      await CacheDB.tx([L, V], 'readwrite', t => {
+        t.objectStore(L).clear();
+        t.objectStore(V).clear();
+      });
+    } catch (e) { console.warn('清空缓存失败', e); }
   }
 
   async function list() {
     if (!supported) return [];
     try {
-      const records = await tx('readonly', s => s.getAll());
-      return records.map(r => ({
-        userId: r.userId,
-        count: Array.isArray(r.data) ? r.data.length : 0,
-        size: new Blob([JSON.stringify(r.data)]).size,
-        ts: r.ts,
-        age: Date.now() - r.ts,
-      })).sort((a, b) => b.ts - a.ts);
+      return await CacheDB.tx([L, V], 'readonly', async t => {
+        const recs = await CacheDB.req(t.objectStore(L).getAll());
+        const vstore = t.objectStore(V);
+        const out = [];
+        for (const rec of recs) {
+          const ids = rec.videoIds || [];
+          const videos = ids.length ? await CacheDB.req(vstore.getAll(ids)) : [];
+          out.push({
+            userId: rec.userId,
+            count: ids.length,
+            size: new Blob([JSON.stringify(videos)]).size,
+            ts: rec.ts,
+            age: Date.now() - rec.ts,
+          });
+        }
+        return out.sort((a, b) => b.ts - a.ts);
+      });
     } catch (e) { console.warn('缓存列表失败', e); return []; }
   }
+
+  /* ---------------- 索引查询（供未来功能使用） ---------------- */
+
+  async function getVideo(videoId) {
+    if (!supported) return null;
+    try {
+      return await CacheDB.tx([V], 'readonly', t =>
+        CacheDB.req(t.objectStore(V).get(Number(videoId))));
+    } catch { return null; }
+  }
+
+  async function getUserVideos(userId) {
+    if (!supported) return [];
+    try {
+      return await CacheDB.tx([V], 'readonly', t =>
+        CacheDB.req(t.objectStore(V).index('userId').getAll(String(userId))));
+    } catch { return []; }
+  }
+
+  async function getUserLevelVideos(userId, level) {
+    if (!supported) return [];
+    try {
+      return await CacheDB.tx([V], 'readonly', t =>
+        CacheDB.req(t.objectStore(V)
+          .index('userId_level')
+          .getAll([String(userId), level])));
+    } catch { return []; }
+  }
+
+  /* ---------------- 工具 ---------------- */
 
   function ageText(age) {
     const s = Math.floor(age / 1000);
@@ -88,5 +137,9 @@ const Cache = (() => {
     return `${(bytes / 1024 / 1024).toFixed(2)} MB`;
   }
 
-  return { read, write, remove, clearAll, list, ageText, fmtSize, supported };
+  return {
+    read, write, remove, clearAll, list,
+    getVideo, getUserVideos, getUserLevelVideos,
+    ageText, fmtSize, supported,
+  };
 })();

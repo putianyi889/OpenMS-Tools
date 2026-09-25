@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PB 网格 - 用户视频数据</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/pb.css">
+</head>
+<body>
+  <h1>PB 网格</h1>
+  <p class="subtitle">
+    GET /api/userprofile/videolist · 
+    <a href="index.html" id="backLink" style="color:#58a6ff;">返回导航</a> · 
+    <a href="#" id="refreshLink" style="color:#d29922;">强制刷新</a>
+  </p>
+
+  <div class="status" id="status"></div>
+  <div id="pbContent"></div>
+
+  <script src="js/utils.js"></script>
+  <script src="js/cache.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/pb/pbLevel.js"></script>
+  <script src="js/pb/pbLevels.js"></script>
+  <script src="js/pb/pbRenderer.js"></script>
+  <script src="js/pb/pbPage.js"></script>
+</body>
+</html>

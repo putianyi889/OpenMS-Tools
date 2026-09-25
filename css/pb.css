@@ -1,0 +1,89 @@
+.pb-section {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 12px;
+  padding: 18px 20px;
+  margin-bottom: 24px;
+  overflow-x: auto;
+}
+
+.pb-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #e1e4e8;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.pb-sub { font-size: 0.8rem; color: #8b949e; font-weight: 400; }
+
+/* 网格：首列是行号，其余 10 列是数据 */
+.pb-grid {
+  display: grid;
+  grid-template-columns: 20px repeat(10, minmax(52px, 1fr));
+  gap: 3px;
+  min-width: 520px;
+}
+
+.pb-corner { }
+
+/* 行列号：同样压缩到文字高度 */
+.pb-col-label,
+.pb-row-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  color: #484f58;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 单元格：不再使用 aspect-ratio，高度由内容撑开 */
+.pb-cell {
+  padding: 1px 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  transition: background 0.12s, border-color 0.12s;
+}
+
+/* 范围外：完全隐藏 */
+.pb-cell.pb-empty {
+  background: transparent;
+  padding: 0;
+  line-height: 1.15;
+  min-height: 1.15em;
+}
+
+/* 范围内但无记录 */
+.pb-cell.pb-missing {
+  background: #10141a;
+  border: 1px dashed #21262d;
+  color: #30363d;
+}
+
+/* 有 PB 记录 */
+.pb-cell.pb-has {
+  background: #1c2128;
+  border: 1px solid #30363d;
+  color: #3fb950;
+  font-weight: 600;
+}
+.pb-cell.pb-has:hover {
+  background: #21262d;
+  border-color: #58a6ff;
+  color: #58a6ff;
+}
+
+@media (max-width: 600px) {
+  .pb-grid { gap: 2px; min-width: 460px; }
+  .pb-cell { font-size: 0.65rem; padding: 1px 2px; }
+  .pb-col-label, .pb-row-label { font-size: 0.6rem; }
+}

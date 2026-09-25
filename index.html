@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>用户视频数据可视化</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+  <h1>用户视频数据可视化</h1>
+  <p class="subtitle">GET /api/userprofile/videolist · 数据来源: openms.top</p>
+
+  <div class="controls">
+    <label for="userId">用户 ID:</label>
+    <input type="number" id="userId" placeholder="例如 1" value="1" min="1">
+    <button onclick="nav('stats.html')">开始探索</button>
+  </div>
+  <div class="status" id="prefetchTip"></div>
+
+  <div class="nav-cards">
+    <a class="nav-card" href="#" onclick="nav('stats.html')">
+      <div class="icon">📊</div>
+      <h3>统计概览</h3>
+      <p>视频总数、平均耗时、常用软件等关键指标</p>
+    </a>
+    <a class="nav-card" href="#" onclick="nav('charts.html')">
+      <div class="icon">📈</div>
+      <h3>图表分析</h3>
+      <p>上传趋势、软件 / 等级 / 模式 / 状态分布</p>
+    </a>
+    <a class="nav-card" href="#" onclick="nav('table.html')">
+      <div class="icon">📋</div>
+      <h3>数据明细</h3>
+      <p>可排序的完整视频列表</p>
+    </a>
+    <!-- 新增 -->
+    <a class="nav-card" href="cache-manager.html">
+      <div class="icon">💾</div>
+      <h3>缓存管理</h3>
+      <p>查看 / 删除已缓存的数据</p>
+    </a>
+  </div>
+
+  <script src="js/utils.js"></script>
+  <script src="js/cache.js"></script>
+  <script src="js/api.js"></script>
+  <script>
+    function nav(page) {
+      const id = document.getElementById('userId').value.trim();
+      if (!id || isNaN(id) || Number(id) < 1) {
+        alert('请输入有效的用户 ID');
+        return;
+      }
+      location.href = `${page}?user_id=${id}`;
+    }
+
+    // 输入 ID 后自动预取数据到 IndexedDB，让后续页面秒开
+    let prefetchTimer;
+    document.getElementById('userId').addEventListener('input', e => {
+      clearTimeout(prefetchTimer);
+      const id = e.target.value.trim();
+      const tip = document.getElementById('prefetchTip');
+      if (!id || isNaN(id) || Number(id) < 1) { tip.textContent = ''; return; }
+
+      prefetchTimer = setTimeout(async () => {
+        // 1. 先查缓存
+        const cached = await Cache.read(id);
+        if (cached) {
+          tip.textContent = `⚡ 已缓存 ${cached.data.length} 条 · ${Cache.ageText(cached.age)}`;
+          return;
+        }
+        // 2. 缓存未命中，发起网络请求
+        tip.textContent = '预加载中...';
+        try {
+          const data = await fetchVideos(id);
+          await Cache.write(id, data);
+          tip.textContent = `✓ 已预加载 ${data.length} 条数据`;
+        } catch {
+          tip.textContent = '';
+        }
+      }, 600);
+    });
+
+    document.getElementById('userId').addEventListener('keydown', e => {
+      if (e.key === 'Enter') nav('stats.html');
+    });
+  </script>
+</body>
+</html>

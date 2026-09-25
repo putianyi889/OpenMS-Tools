@@ -1,0 +1,58 @@
+.summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.summary .stat-card {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 12px;
+  padding: 16px 20px;
+}
+.summary .stat-card .label {
+  font-size: 0.8rem; color: #8b949e;
+  text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;
+}
+.summary .stat-card .value {
+  font-size: 1.6rem; font-weight: 700; color: #e1e4e8;
+}
+
+.cache-table-section {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 12px;
+  padding: 18px;
+  overflow-x: auto;
+}
+#cacheTable { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+#cacheTable th {
+  text-align: left; padding: 10px 12px;
+  color: #8b949e; font-weight: 500;
+  border-bottom: 1px solid #30363d;
+  white-space: nowrap;
+}
+#cacheTable td {
+  padding: 12px;
+  border-bottom: 1px solid #21262d;
+  color: #c9d1d9;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+#cacheTable tr:hover td { background: #1c2128; }
+.muted { color: #8b949e; font-size: 0.8rem; }
+
+.actions { display: flex; gap: 10px; }
+.btn-link {
+  background: none; border: none; padding: 0;
+  color: #58a6ff; cursor: pointer;
+  text-decoration: none; font-size: 0.85rem;
+  font-family: inherit;
+}
+.btn-link:hover { text-decoration: underline; }
+.btn-link.warn { color: #d29922; }
+.btn-link.danger { color: #f85149; }
+
+button.danger {
+  background: linear-gradient(135deg, #da3633, #f85149) !important;
+}

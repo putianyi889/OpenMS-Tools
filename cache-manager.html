@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>缓存管理 - 用户视频数据</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/cache-manager.css">
+</head>
+<body>
+  <h1>缓存管理</h1>
+  <p class="subtitle">
+    IndexedDB · openms_video_cache · 缓存永久有效，需手动刷新 ·
+    <a href="index.html" style="color:#58a6ff;">返回导航</a>
+  </p>
+
+  <div class="controls">
+    <button onclick="refreshList()">🔄 刷新列表</button>
+    <button class="danger" onclick="clearAllCaches()">🗑️ 清空全部缓存</button>
+    <span class="status" id="status"></span>
+  </div>
+
+  <div class="summary" id="summary"></div>
+
+  <div class="cache-table-section">
+    <table id="cacheTable">
+      <thead>
+        <tr>
+          <th>用户 ID</th>
+          <th>记录数</th>
+          <th>占用大小</th>
+          <th>缓存时间</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody id="cacheTableBody"></tbody>
+    </table>
+    <div id="emptyState" class="empty-state" style="display:none;">暂无缓存数据</div>
+  </div>
+
+  <script src="js/utils.js"></script>
+  <script src="js/cache.js"></script>
+  <script src="js/cacheManager.js"></script>
+</body>
+</html>

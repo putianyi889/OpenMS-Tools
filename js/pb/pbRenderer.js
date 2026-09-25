@@ -22,15 +22,39 @@ class PBRenderer {
     `;
   }
 
+  /**
+   * 计算有 PB 的十位范围（仅裁剪首尾空行，中间空行保留）。
+   * @returns {[number, number]|null} [minTens, maxTens]，无 PB 时返回 null
+   */
+  computeRowRange(pbMap) {
+    let minTens = Infinity;
+    let maxTens = -Infinity;
+    for (const bv of pbMap.keys()) {
+      const tens = Math.floor(bv / 10);
+      if (tens < minTens) minTens = tens;
+      if (tens > maxTens) maxTens = tens;
+    }
+    return minTens === Infinity ? null : [minTens, maxTens];
+  }
+
   renderGrid(level, pbMap) {
+    const range = this.computeRowRange(pbMap);
+
+    if (!range) {
+      return `<div class="pb-grid-empty">该等级暂无 PB 记录</div>`;
+    }
+
+    const [minTens, maxTens] = range;
     const cells = [];
 
+    // 表头行
     cells.push(`<div class="pb-corner"></div>`);
     for (let ones = 0; ones <= 9; ones++) {
       cells.push(`<div class="pb-col-label">${ones}</div>`);
     }
 
-    for (let tens = 0; tens <= level.maxTens; tens++) {
+    // 只渲染 [minTens, maxTens] 区间内的数据行
+    for (let tens = minTens; tens <= maxTens; tens++) {
       cells.push(`<div class="pb-row-label">${tens}</div>`);
       for (let ones = 0; ones <= 9; ones++) {
         const bv = tens * 10 + ones;

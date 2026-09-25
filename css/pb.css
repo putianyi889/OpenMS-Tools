@@ -95,6 +95,12 @@
 .pb-badge.warn { background: rgba(210,153,34,0.2); color: #d29922; }
 .pb-badge.good { background: rgba(63,185,80,0.2);  color: #3fb950; }
 
+.pb-grid-empty {
+  padding: 12px 4px;
+  font-size: 0.85rem;
+  color: #484f58;
+}
+
 @media (max-width: 600px) {
   .pb-grid { gap: 2px; min-width: 480px; }
   .pb-cell { font-size: 0.65rem; padding: 1px 2px; gap: 2px; }

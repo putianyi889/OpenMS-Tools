@@ -1,4 +1,8 @@
 async function fetchVideos(userId) {
+  return RequestQueue.enqueue(() => doFetchVideos(userId));
+}
+
+async function doFetchVideos(userId) {
   const url = `https://openms.top/api/userprofile/videolist?user_id=${userId}`;
   const resp = await fetch(url, { headers: { 'Accept': 'application/json' } });
   if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${resp.statusText}`);
@@ -7,6 +11,7 @@ async function fetchVideos(userId) {
   return data;
 }
 
+// loadPageData 保持原样，内部调用 fetchVideos 会自动走队列
 async function loadPageData(onLoaded) {
   const userId = Utils.getUserId();
   if (!userId || isNaN(userId) || Number(userId) < 1) {
@@ -21,7 +26,6 @@ async function loadPageData(onLoaded) {
     history.replaceState(null, '', location.pathname + '?' + params.toString());
   }
 
-  // 1. 非刷新模式：命中缓存直接渲染
   if (!force) {
     const cached = await Cache.read(userId);
     if (cached) {
@@ -34,7 +38,6 @@ async function loadPageData(onLoaded) {
     }
   }
 
-  // 2. 请求网络
   Utils.setStatus('加载中...');
   try {
     const data = await fetchVideos(userId);
@@ -43,7 +46,6 @@ async function loadPageData(onLoaded) {
     onLoaded(data);
   } catch (err) {
     console.error('加载失败:', err);
-    // 3. 刷新失败时，如果本地还有旧缓存则继续使用
     if (force) {
       const cached = await Cache.read(userId);
       if (cached) {

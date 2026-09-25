@@ -56,3 +56,9 @@
 button.danger {
   background: linear-gradient(135deg, #da3633, #f85149) !important;
 }
+
+.batch-section .hint {
+  font-size: 0.85rem;
+  color: #8b949e;
+  margin-bottom: 14px;
+}

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>奖牌榜 - 用户视频数据</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/medals.css">
+</head>
+<body>
+  <h1>奖牌榜</h1>
+  <p class="subtitle">
+    按 (level, bv) 位置列出所有已缓存用户的 PB · 
+    <a href="index.html" style="color:#58a6ff;">返回导航</a>
+  </p>
+
+  <div class="controls">
+    <label for="levelSelect">等级:</label>
+    <select id="levelSelect"></select>
+    <label for="bvSelect">bv:</label>
+    <select id="bvSelect"></select>
+  </div>
+
+  <div class="status" id="status"></div>
+
+  <div class="medal-table-section">
+    <table id="medalTable">
+      <thead>
+        <tr>
+          <th class="col-rank">排名</th>
+          <th>用户</th>
+          <th class="col-num">time (s)</th>
+          <th class="col-num">bvs</th>
+          <th class="col-num">stnb</th>
+          <th class="col-time">上传时间</th>
+        </tr>
+      </thead>
+      <tbody id="medalBody"></tbody>
+    </table>
+  </div>
+
+  <script src="js/utils.js"></script>
+  <script src="js/cacheDb.js"></script>
+  <script src="js/pb/pbFormat.js"></script>
+  <script src="js/pb/pbLevel.js"></script>
+  <script src="js/pb/pbLevels.js"></script>
+  <script src="js/pb/pbCache.js"></script>
+  <script src="js/medals/medalsRenderer.js"></script>
+  <script src="js/medals/medalsPage.js"></script>
+</body>
+</html>

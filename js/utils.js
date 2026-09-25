@@ -6,10 +6,7 @@ const Utils = {
     return Array.from({ length: n }, (_, i) => base[i % base.length]);
   },
 
-  fmtDate(iso) {
-    if (!iso) return '—';
-    return iso.slice(0, 10);
-  },
+  fmtDate(iso) { return iso ? iso.slice(0, 10) : '—'; },
 
   fmtDateTime(iso) {
     if (!iso) return '—';
@@ -32,6 +29,24 @@ const Utils = {
     return new URLSearchParams(location.search).get('user_id');
   },
 
+  // 记住上次访问的用户 ID
+  rememberUserId(id) {
+    if (id) try { localStorage.setItem('openms_last_user_id', String(id)); } catch {}
+  },
+
+  lastUserId() {
+    try { return localStorage.getItem('openms_last_user_id'); } catch { return null; }
+  },
+
+  // 子页面：给「返回导航」链接带上 user_id
+  setupBackLink() {
+    const link = document.getElementById('backLink');
+    if (!link) return;
+    const userId = this.getUserId();
+    link.href = userId ? `index.html?user_id=${userId}` : 'index.html';
+  },
+
+  // 子页面：给「强制刷新」链接带上 user_id
   setupRefreshLink() {
     const link = document.getElementById('refreshLink');
     if (!link) return;
@@ -50,5 +65,6 @@ const Utils = {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
+  Utils.setupBackLink();
   Utils.setupRefreshLink();
 });

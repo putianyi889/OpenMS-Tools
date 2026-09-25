@@ -34,7 +34,6 @@
       <h3>数据明细</h3>
       <p>可排序的完整视频列表</p>
     </a>
-    <!-- 新增 -->
     <a class="nav-card" href="cache-manager.html">
       <div class="icon">💾</div>
       <h3>缓存管理</h3>
@@ -46,31 +45,45 @@
   <script src="js/cache.js"></script>
   <script src="js/api.js"></script>
   <script>
+    const input = document.getElementById('userId');
+
+    // 1. 优先使用 URL 参数 ?user_id=xxx，其次使用 localStorage 里记住的 ID
+    const urlId = Utils.getUserId();
+    const savedId = Utils.lastUserId();
+    if (urlId) input.value = urlId;
+    else if (savedId) input.value = savedId;
+
+    // 2. 回填后立即预取（延迟一点，等页面渲染完）
+    if (input.value) {
+      input.dispatchEvent(new Event('input'));
+    }
+
     function nav(page) {
-      const id = document.getElementById('userId').value.trim();
+      const id = input.value.trim();
       if (!id || isNaN(id) || Number(id) < 1) {
         alert('请输入有效的用户 ID');
         return;
       }
+      Utils.rememberUserId(id);
       location.href = `${page}?user_id=${id}`;
     }
 
-    // 输入 ID 后自动预取数据到 IndexedDB，让后续页面秒开
+    // 输入 ID 后自动预取到 IndexedDB，并记住这个 ID
     let prefetchTimer;
-    document.getElementById('userId').addEventListener('input', e => {
+    input.addEventListener('input', e => {
       clearTimeout(prefetchTimer);
       const id = e.target.value.trim();
       const tip = document.getElementById('prefetchTip');
       if (!id || isNaN(id) || Number(id) < 1) { tip.textContent = ''; return; }
 
+      Utils.rememberUserId(id);
+
       prefetchTimer = setTimeout(async () => {
-        // 1. 先查缓存
         const cached = await Cache.read(id);
         if (cached) {
           tip.textContent = `⚡ 已缓存 ${cached.data.length} 条 · ${Cache.ageText(cached.age)}`;
           return;
         }
-        // 2. 缓存未命中，发起网络请求
         tip.textContent = '预加载中...';
         try {
           const data = await fetchVideos(id);
@@ -82,7 +95,7 @@
       }, 600);
     });
 
-    document.getElementById('userId').addEventListener('keydown', e => {
+    input.addEventListener('keydown', e => {
       if (e.key === 'Enter') nav('stats.html');
     });
   </script>

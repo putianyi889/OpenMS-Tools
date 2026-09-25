@@ -1,36 +1,24 @@
+/**
+ * 一个等级的 PB 计算 + 单元格渲染配置。
+ * 三种显示模式：'time' | 'bvs' | 'stnb'。
+ * 子类可覆写 selectPB / getCellText / renderCell 等。
+ */
 class PBLevel {
-  constructor({ key, label, minBv, maxBv }) {
+  /**
+   * @param {Object} cfg
+   * @param {string} cfg.key
+   * @param {string} cfg.label
+   * @param {number} cfg.minBv
+   * @param {number} cfg.maxBv
+   * @param {number} cfg.stnbC   STNB 公式中的系数
+   */
+  constructor({ key, label, minBv, maxBv, stnbC }) {
     this.key = key;
     this.label = label;
     this.minBv = minBv;
     this.maxBv = maxBv;
-    this.displayMode = 'time'; // 'time' | 'bvs'
-  }
-
-  /* ---------------- 静态工具 ---------------- */
-
-  static formatTime(timems) {
-    if (typeof timems !== 'number') return '—';
-    return (timems / 1000).toFixed(3);
-  }
-
-  /** bvs = bv / time，保留三位小数 */
-  static formatBvs(bv, timems) {
-    if (typeof timems !== 'number' || timems === 0) return '—';
-    const time = timems / 1000;
-    return (bv / time).toFixed(3);
-  }
-
-  static escapeHtml(s) {
-    return String(s).replace(/[&<>"']/g, c => ({
-      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-    }[c]));
-  }
-
-  /* ---------------- 显示模式 ---------------- */
-
-  setDisplayMode(mode) {
-    this.displayMode = mode === 'bvs' ? 'bvs' : 'time';
+    this.stnbC = stnbC;
+    this.displayMode = 'time';
   }
 
   /* ---------------- 计算 ---------------- */
@@ -74,39 +62,51 @@ class PBLevel {
     return pbMap;
   }
 
+  /* ---------------- 显示模式 ---------------- */
+
+  static MODES = ['time', 'bvs', 'stnb'];
+
+  setDisplayMode(mode) {
+    this.displayMode = PBLevel.MODES.includes(mode) ? mode : 'time';
+  }
+
   /* ---------------- 单元格内容片段 ---------------- */
 
-  /**
-   * 子类覆写时请保持 (bv, pb) 签名，并根据 this.displayMode 决定呈现。
-   */
   getCellText(bv, pb) {
-    return this.displayMode === 'bvs'
-      ? this.renderBvs(bv, pb)
-      : this.renderTime(pb);
+    switch (this.displayMode) {
+      case 'bvs':  return this.renderBvs(bv, pb);
+      case 'stnb': return this.renderStnb(bv, pb);
+      default:     return this.renderTime(pb);
+    }
   }
 
   renderTime(pb) {
-    const t = PBLevel.formatTime(pb.timems);
-    return `<span class="pb-time">${PBLevel.escapeHtml(t)}</span>`;
+    return `<span class="pb-time">${PBFormat.escapeHtml(PBFormat.time(pb.timems))}</span>`;
   }
 
   renderBvs(bv, pb) {
-    const v = PBLevel.formatBvs(bv, pb.timems);
-    return `<span class="pb-bvs">${PBLevel.escapeHtml(v)}</span>`;
+    return `<span class="pb-bvs">${PBFormat.escapeHtml(PBFormat.bvs(bv, pb.timems))}</span>`;
+  }
+
+  renderStnb(bv, pb) {
+    const v = PBFormat.stnb(this.stnbC, bv, pb.timems);
+    return `<span class="pb-stnb">${PBFormat.escapeHtml(v)}</span>`;
   }
 
   renderBadge(text, extraClass = '') {
-    return `<span class="pb-badge ${extraClass}">${PBLevel.escapeHtml(text)}</span>`;
+    return `<span class="pb-badge ${extraClass}">${PBFormat.escapeHtml(text)}</span>`;
   }
 
-  /** tooltip 同时展示两种指标，不受显示模式影响 */
+  /** tooltip 同时展示三种指标，不受当前显示模式影响 */
   getCellTooltip(bv, pb) {
     if (!pb) return `bv ${bv} · 无记录`;
-    const t = PBLevel.formatTime(pb.timems);
-    const b = PBLevel.formatBvs(bv, pb.timems);
+    const t = PBFormat.time(pb.timems);
+    const b = PBFormat.bvs(bv, pb.timems);
+    const s = PBFormat.stnb(this.stnbC, bv, pb.timems);
     return `bv ${bv}\n玩家: ${pb.player ?? '—'}\n` +
            `time: ${t} s (${pb.timems} ms)\n` +
            `bvs: ${b}\n` +
+           `stnb: ${s}\n` +
            `上传: ${pb.upload_time ?? '—'}`;
   }
 
@@ -124,14 +124,12 @@ class PBLevel {
     if (!this.isInRange(bv)) {
       return `<div class="pb-cell pb-empty"></div>`;
     }
-
     if (!pb) {
-      const tip = PBLevel.escapeHtml(`bv ${bv} · 无记录`);
+      const tip = PBFormat.escapeHtml(`bv ${bv} · 无记录`);
       return `<div class="pb-cell pb-missing" title="${tip}">—</div>`;
     }
-
     const inner = this.getCellText(bv, pb);
-    const tip = PBLevel.escapeHtml(this.getCellTooltip(bv, pb));
+    const tip = PBFormat.escapeHtml(this.getCellTooltip(bv, pb));
     const extra = this.getCellClasses(bv, pb).trim();
     const cls = `pb-cell pb-has${extra ? ' ' + extra : ''}`;
     return `<div class="${cls}" title="${tip}">${inner}</div>`;

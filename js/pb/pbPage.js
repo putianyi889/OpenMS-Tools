@@ -4,10 +4,10 @@ let currentData = null;
 
 function getInitialMode() {
   const url = new URLSearchParams(location.search).get('display');
-  if (url === 'bvs' || url === 'time') return url;
+  if (PBLevel.MODES.includes(url)) return url;
   try {
     const saved = localStorage.getItem(MODE_KEY);
-    if (saved === 'bvs' || saved === 'time') return saved;
+    if (PBLevel.MODES.includes(saved)) return saved;
   } catch {}
   return 'time';
 }

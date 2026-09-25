@@ -143,3 +143,11 @@
   color: #bc8cff;
 }
 .pb-cell.pb-has:hover .pb-bvs { color: #d2a8ff; }
+
+/* ---------- 单元格内 STNB 片段 ---------- */
+.pb-stnb {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: #e3b341;
+}
+.pb-cell.pb-has:hover .pb-stnb { color: #f0c674; }

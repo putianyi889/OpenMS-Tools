@@ -1,6 +1,6 @@
 /**
  * 一个等级的 PB 计算 + 单元格渲染配置。
- * 未来若需要更高级的计算，可继承本类并覆写 selectPB / getCellText 等方法。
+ * 未来若需要更高级的计算，可继承本类并覆写 selectPB / getCellText / renderCell 等方法。
  */
 class PBLevel {
   constructor({ key, label, minBv, maxBv }) {
@@ -10,11 +10,20 @@ class PBLevel {
     this.maxBv = maxBv;
   }
 
-  /** 耗时格式化：timems → 秒，保留三位小数 */
+  /* ---------------- 静态工具 ---------------- */
+
   static formatTime(timems) {
     if (typeof timems !== 'number') return '—';
     return (timems / 1000).toFixed(3);
   }
+
+  static escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+  }
+
+  /* ---------------- 计算 ---------------- */
 
   filterVideos(videos) {
     const key = this.key.toLowerCase();
@@ -36,10 +45,6 @@ class PBLevel {
     return map;
   }
 
-  /**
-   * 从桶中选出 PB —— 默认取 timems 最小。
-   * 子类可覆写以支持更复杂的评分。
-   */
   selectPB(bucketVideos) {
     let best = null;
     for (const v of bucketVideos) {
@@ -59,18 +64,59 @@ class PBLevel {
     return pbMap;
   }
 
-  /** 单元格显示文本：time = timems/1000，三位小数 */
+  /* ---------------- 单元格内容片段 ---------------- */
+
   getCellText(pb) {
-    return PBLevel.formatTime(pb.timems);
+    return this.renderTime(pb);
   }
 
-  /** 单元格 tooltip：同样以 time 为主，附原始 timems */
+  renderTime(pb) {
+    const t = PBLevel.formatTime(pb.timems);
+    return `<span class="pb-time">${PBLevel.escapeHtml(t)}</span>`;
+  }
+
+  renderBadge(text, extraClass = '') {
+    return `<span class="pb-badge ${extraClass}">${PBLevel.escapeHtml(text)}</span>`;
+  }
+
   getCellTooltip(bv, pb) {
     if (!pb) return `bv ${bv} · 无记录`;
     const t = PBLevel.formatTime(pb.timems);
     return `bv ${bv}\n玩家: ${pb.player ?? '—'}\n` +
            `time: ${t} s (${pb.timems} ms)\n` +
            `上传: ${pb.upload_time ?? '—'}`;
+  }
+
+  /* ---------------- 单元格渲染 ---------------- */
+
+  isInRange(bv) {
+    return bv >= this.minBv && bv <= this.maxBv;
+  }
+
+  /**
+   * 子类可覆写以给单元格追加类名（例如命中特效、置顶标记）。
+   * @returns {string} 附加类名，空格分隔；返回空字符串则不加
+   */
+  getCellClasses(/* bv, pb */) {
+    return '';
+  }
+
+  /** 完整渲染一个单元格；默认实现覆盖「范围外 / 无记录 / 有 PB」三种情况 */
+  renderCell(bv, pb) {
+    if (!this.isInRange(bv)) {
+      return `<div class="pb-cell pb-empty"></div>`;
+    }
+
+    if (!pb) {
+      const tip = PBLevel.escapeHtml(`bv ${bv} · 无记录`);
+      return `<div class="pb-cell pb-missing" title="${tip}">—</div>`;
+    }
+
+    const inner = this.getCellText(pb);
+    const tip = PBLevel.escapeHtml(this.getCellTooltip(bv, pb));
+    const extra = this.getCellClasses(bv, pb).trim();
+    const cls = `pb-cell pb-has${extra ? ' ' + extra : ''}`;
+    return `<div class="${cls}" title="${tip}">${inner}</div>`;
   }
 
   get maxTens() {

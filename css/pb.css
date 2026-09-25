@@ -18,17 +18,15 @@
 }
 .pb-sub { font-size: 0.8rem; color: #8b949e; font-weight: 400; }
 
-/* 网格：首列是行号，其余 10 列是数据 */
 .pb-grid {
   display: grid;
-  grid-template-columns: 20px repeat(10, minmax(52px, 1fr));
+  grid-template-columns: 20px repeat(10, minmax(56px, 1fr));
   gap: 3px;
-  min-width: 520px;
+  min-width: 560px;
 }
 
 .pb-corner { }
 
-/* 行列号：同样压缩到文字高度 */
 .pb-col-label,
 .pb-row-label {
   display: flex;
@@ -40,13 +38,13 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* 单元格：不再使用 aspect-ratio，高度由内容撑开 */
 .pb-cell {
   padding: 1px 4px;
   border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 4px;
   font-size: 0.72rem;
   line-height: 1.15;
   font-variant-numeric: tabular-nums;
@@ -54,36 +52,52 @@
   transition: background 0.12s, border-color 0.12s;
 }
 
-/* 范围外：完全隐藏 */
 .pb-cell.pb-empty {
   background: transparent;
   padding: 0;
-  line-height: 1.15;
   min-height: 1.15em;
 }
 
-/* 范围内但无记录 */
 .pb-cell.pb-missing {
   background: #10141a;
   border: 1px dashed #21262d;
   color: #30363d;
 }
 
-/* 有 PB 记录 */
 .pb-cell.pb-has {
   background: #1c2128;
   border: 1px solid #30363d;
   color: #3fb950;
-  font-weight: 600;
 }
 .pb-cell.pb-has:hover {
   background: #21262d;
   border-color: #58a6ff;
-  color: #58a6ff;
 }
 
+/* ---------- 单元格内部结构片段 ---------- */
+.pb-time {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.pb-cell.pb-has:hover .pb-time { color: #58a6ff; }
+
+.pb-badge {
+  display: inline-block;
+  padding: 0 4px;
+  border-radius: 3px;
+  font-size: 0.6rem;
+  font-weight: 500;
+  line-height: 1.3;
+  background: #30363d;
+  color: #8b949e;
+  font-variant-numeric: tabular-nums;
+}
+.pb-badge.warn { background: rgba(210,153,34,0.2); color: #d29922; }
+.pb-badge.good { background: rgba(63,185,80,0.2);  color: #3fb950; }
+
 @media (max-width: 600px) {
-  .pb-grid { gap: 2px; min-width: 460px; }
-  .pb-cell { font-size: 0.65rem; padding: 1px 2px; }
+  .pb-grid { gap: 2px; min-width: 480px; }
+  .pb-cell { font-size: 0.65rem; padding: 1px 2px; gap: 2px; }
   .pb-col-label, .pb-row-label { font-size: 0.6rem; }
+  .pb-badge { font-size: 0.55rem; padding: 0 3px; }
 }

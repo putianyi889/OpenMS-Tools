@@ -107,3 +107,39 @@
   .pb-col-label, .pb-row-label { font-size: 0.6rem; }
   .pb-badge { font-size: 0.55rem; padding: 0 3px; }
 }
+
+/* ---------- 显示模式切换 ---------- */
+.mode-label {
+  font-size: 0.9rem;
+  color: #8b949e;
+}
+
+.pb-mode-switch {
+  display: inline-flex;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.pb-mode-switch button {
+  background: #161b22;
+  border: none;
+  color: #8b949e;
+  padding: 6px 14px;
+  font-size: 0.85rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.pb-mode-switch button:hover { color: #e1e4e8; }
+.pb-mode-switch button.active {
+  background: #1f6feb;
+  color: #fff;
+}
+
+/* ---------- 单元格内 BVS 片段 ---------- */
+.pb-bvs {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: #bc8cff;
+}
+.pb-cell.pb-has:hover .pb-bvs { color: #d2a8ff; }

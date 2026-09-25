@@ -1,13 +1,10 @@
-/**
- * 一个等级的 PB 计算 + 单元格渲染配置。
- * 未来若需要更高级的计算，可继承本类并覆写 selectPB / getCellText / renderCell 等方法。
- */
 class PBLevel {
   constructor({ key, label, minBv, maxBv }) {
     this.key = key;
     this.label = label;
     this.minBv = minBv;
     this.maxBv = maxBv;
+    this.displayMode = 'time'; // 'time' | 'bvs'
   }
 
   /* ---------------- 静态工具 ---------------- */
@@ -17,10 +14,23 @@ class PBLevel {
     return (timems / 1000).toFixed(3);
   }
 
+  /** bvs = bv / time，保留三位小数 */
+  static formatBvs(bv, timems) {
+    if (typeof timems !== 'number' || timems === 0) return '—';
+    const time = timems / 1000;
+    return (bv / time).toFixed(3);
+  }
+
   static escapeHtml(s) {
     return String(s).replace(/[&<>"']/g, c => ({
       '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
     }[c]));
+  }
+
+  /* ---------------- 显示模式 ---------------- */
+
+  setDisplayMode(mode) {
+    this.displayMode = mode === 'bvs' ? 'bvs' : 'time';
   }
 
   /* ---------------- 计算 ---------------- */
@@ -66,8 +76,13 @@ class PBLevel {
 
   /* ---------------- 单元格内容片段 ---------------- */
 
-  getCellText(pb) {
-    return this.renderTime(pb);
+  /**
+   * 子类覆写时请保持 (bv, pb) 签名，并根据 this.displayMode 决定呈现。
+   */
+  getCellText(bv, pb) {
+    return this.displayMode === 'bvs'
+      ? this.renderBvs(bv, pb)
+      : this.renderTime(pb);
   }
 
   renderTime(pb) {
@@ -75,15 +90,23 @@ class PBLevel {
     return `<span class="pb-time">${PBLevel.escapeHtml(t)}</span>`;
   }
 
+  renderBvs(bv, pb) {
+    const v = PBLevel.formatBvs(bv, pb.timems);
+    return `<span class="pb-bvs">${PBLevel.escapeHtml(v)}</span>`;
+  }
+
   renderBadge(text, extraClass = '') {
     return `<span class="pb-badge ${extraClass}">${PBLevel.escapeHtml(text)}</span>`;
   }
 
+  /** tooltip 同时展示两种指标，不受显示模式影响 */
   getCellTooltip(bv, pb) {
     if (!pb) return `bv ${bv} · 无记录`;
     const t = PBLevel.formatTime(pb.timems);
+    const b = PBLevel.formatBvs(bv, pb.timems);
     return `bv ${bv}\n玩家: ${pb.player ?? '—'}\n` +
            `time: ${t} s (${pb.timems} ms)\n` +
+           `bvs: ${b}\n` +
            `上传: ${pb.upload_time ?? '—'}`;
   }
 
@@ -93,15 +116,10 @@ class PBLevel {
     return bv >= this.minBv && bv <= this.maxBv;
   }
 
-  /**
-   * 子类可覆写以给单元格追加类名（例如命中特效、置顶标记）。
-   * @returns {string} 附加类名，空格分隔；返回空字符串则不加
-   */
   getCellClasses(/* bv, pb */) {
     return '';
   }
 
-  /** 完整渲染一个单元格；默认实现覆盖「范围外 / 无记录 / 有 PB」三种情况 */
   renderCell(bv, pb) {
     if (!this.isInRange(bv)) {
       return `<div class="pb-cell pb-empty"></div>`;
@@ -112,7 +130,7 @@ class PBLevel {
       return `<div class="pb-cell pb-missing" title="${tip}">—</div>`;
     }
 
-    const inner = this.getCellText(pb);
+    const inner = this.getCellText(bv, pb);
     const tip = PBLevel.escapeHtml(this.getCellTooltip(bv, pb));
     const extra = this.getCellClasses(bv, pb).trim();
     const cls = `pb-cell pb-has${extra ? ' ' + extra : ''}`;

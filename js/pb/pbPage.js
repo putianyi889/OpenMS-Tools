@@ -1,7 +1,45 @@
 const pbRenderer = new PBRenderer(PB_LEVELS);
+const MODE_KEY = 'openms_pb_display_mode';
+let currentData = null;
+
+function getInitialMode() {
+  const url = new URLSearchParams(location.search).get('display');
+  if (url === 'bvs' || url === 'time') return url;
+  try {
+    const saved = localStorage.getItem(MODE_KEY);
+    if (saved === 'bvs' || saved === 'time') return saved;
+  } catch {}
+  return 'time';
+}
+
+function applyMode(mode) {
+  PB_LEVELS.forEach(lv => lv.setDisplayMode(mode));
+  try { localStorage.setItem(MODE_KEY, mode); } catch {}
+
+  document.querySelectorAll('.pb-mode-switch button').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.mode === mode);
+  });
+
+  if (currentData) {
+    pbRenderer.renderAll(document.getElementById('pbContent'), currentData);
+  }
+}
+
+function setupModeSwitch() {
+  const wrap = document.querySelector('.pb-mode-switch');
+  if (!wrap) return;
+  wrap.addEventListener('click', e => {
+    const btn = e.target.closest('button[data-mode]');
+    if (!btn) return;
+    applyMode(btn.dataset.mode);
+  });
+}
 
 if (document.getElementById('pbContent')) {
+  setupModeSwitch();
+  applyMode(getInitialMode());
   loadPageData(data => {
+    currentData = data;
     pbRenderer.renderAll(document.getElementById('pbContent'), data);
   });
 }

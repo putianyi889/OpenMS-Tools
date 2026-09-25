@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>分档 - 用户视频数据</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/tiers.css">
+</head>
+<body>
+  <h1>分档</h1>
+  <p class="subtitle">
+    用户支配 → 分档 · 线支配 → 子分档 · 
+    <a href="index.html" style="color:#58a6ff;">返回导航</a>
+  </p>
+
+  <div class="controls">
+    <div class="tier-tabs" id="levelTabs">
+      <button data-level="i">I 级</button>
+      <button data-level="e" class="active">E 级</button>
+    </div>
+    <button id="recalcBtn" onclick="onRecalc()">🔄 重算</button>
+    <span class="status" id="status"></span>
+  </div>
+
+  <div class="tier-layout">
+    <div class="tier-structure" id="tierStructure"></div>
+    <div class="tier-chart-card">
+      <h3>分档线</h3>
+      <div class="chart-holder">
+        <canvas id="tierChart"></canvas>
+        <div class="chart-empty" id="chartEmpty" style="display:none;">
+          勾选左侧分档以绘制分档线
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/cacheDb.js"></script>
+  <script src="js/cache.js"></script>
+  <script src="js/colorscale.js"></script>
+  <script src="js/pb/pbFormat.js"></script>
+  <script src="js/pb/pbLevel.js"></script>
+  <script src="js/pb/pbLevels.js"></script>
+  <script src="js/pb/pbCache.js"></script>
+  <script src="js/pb/supportLine.js"></script>
+  <script src="js/pareto/tierAlgo.js"></script>
+  <script src="js/pareto/tierLoader.js"></script>
+  <script src="js/pareto/tierRenderer.js"></script>
+  <script src="js/pareto/tierLinesRenderer.js"></script>
+  <script src="js/pareto/tierPage.js"></script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+.batch-section {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 12px;
+  padding: 18px 20px;
+  margin-bottom: 24px;
+}
+.batch-section h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #c9d1d9;
+  margin-bottom: 14px;
+}
+.batch-section .controls { margin-bottom: 0; }
+
+.checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: #8b949e;
+  cursor: pointer;
+  user-select: none;
+}
+.checkbox-label input[type="checkbox"] {
+  accent-color: #58a6ff;
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+}
+
+.batch-progress { margin-top: 14px; }
+.batch-progress:empty { display: none; }
+
+.progress-bar {
+  height: 8px;
+  background: #21262d;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #1f6feb, #58a6ff);
+  transition: width 0.3s ease;
+}
+
+.progress-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-size: 0.85rem;
+  color: #8b949e;
+  font-variant-numeric: tabular-nums;
+}
+.progress-stats .ok { color: #3fb950; }
+.progress-stats .fail { color: #f85149; }
+.progress-stats .skip { color: #d29922; }
+.progress-stats .current { color: #58a6ff; }
+
+.batch-result {
+  margin-top: 12px;
+  font-size: 0.9rem;
+}
+.batch-result.success { color: #3fb950; }
+.batch-result.warn { color: #d29922; }
+.batch-result.error { color: #f85149; }

@@ -7,11 +7,12 @@
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/cache-manager.css">
+  <link rel="stylesheet" href="css/batch-loader.css">
 </head>
 <body>
   <h1>缓存管理</h1>
   <p class="subtitle">
-    IndexedDB · openms_video_cache · 缓存永久有效，需手动刷新 ·
+    IndexedDB · 缓存永久有效，需手动刷新 ·
     <a href="index.html" style="color:#58a6ff;">返回导航</a>
   </p>
 
@@ -22,6 +23,23 @@
   </div>
 
   <div class="summary" id="summary"></div>
+
+  <div class="batch-section">
+    <h3>📦 批量加载用户</h3>
+    <div class="controls">
+      <label for="batchFrom">起始 ID:</label>
+      <input type="number" id="batchFrom" value="1" min="1">
+      <label for="batchTo">结束 ID:</label>
+      <input type="number" id="batchTo" value="10" min="1">
+      <label class="checkbox-label">
+        <input type="checkbox" id="batchSkipCached" checked>
+        跳过已缓存
+      </label>
+      <button id="batchStart" onclick="startBatchLoad()">开始加载</button>
+      <button id="batchCancel" class="danger" onclick="cancelBatchLoad()" disabled>取消</button>
+    </div>
+    <div class="batch-progress" id="batchProgress"></div>
+  </div>
 
   <div class="cache-table-section">
     <table id="cacheTable">
@@ -40,8 +58,11 @@
   </div>
 
   <script src="js/utils.js"></script>
-  <script src="js/cachedDb.js"></script>
+  <script src="js/requestQueue.js"></script>
+  <script src="js/cacheDb.js"></script>
   <script src="js/cache.js"></script>
+  <script src="js/api.js"></script>
   <script src="js/cacheManager.js"></script>
+  <script src="js/batchLoader.js"></script>
 </body>
 </html>

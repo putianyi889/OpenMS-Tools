@@ -30,7 +30,15 @@ window.DEPS = {
   },
 
   /* 简单页面 */
-  'statsPage': { src: 'js/stats.js', deps: ['utils', 'api'] },
+  'statsCards': { src: 'js/statsCards.js', deps: ['utils'] },
+  'pbOverview': { src: 'js/pbOverview.js', deps: [] },
+  'statsPage': {
+    src: 'js/stats.js',
+    deps: ['utils', 'api', 'pbCache',
+           'statsCards', 'pbOverview',
+           'chartUploadTrend', 'chartSoftware', 'chartLevel',
+           'chartMode', 'chartState', 'chartTimems'],
+  },
   'tablePage': { src: 'js/table.js', deps: ['utils', 'api'] },
 
   /* 奖牌榜 */

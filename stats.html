@@ -16,8 +16,20 @@
   </p>
 
   <div class="status" id="status"></div>
+
   <div class="stats-grid" id="statsGrid"></div>
 
+  <div class="charts-grid">
+    <div class="chart-card"><h3>📈 上传趋势（按天）</h3><canvas id="chartUploadTrend"></canvas></div>
+    <div class="chart-card"><h3>🎮 软件分布</h3><canvas id="chartSoftware"></canvas></div>
+    <div class="chart-card"><h3>📊 等级分布</h3><canvas id="chartLevel"></canvas></div>
+    <div class="chart-card"><h3>🎯 模式分布</h3><canvas id="chartMode"></canvas></div>
+    <div class="chart-card"><h3>🔄 状态分布</h3><canvas id="chartState"></canvas></div>
+    <div class="chart-card"><h3>⏱️ 耗时分布（timems）</h3><canvas id="chartTimems"></canvas></div>
+    <div class="chart-card"><h3>🏆 PB 概览（每等级）</h3><canvas id="chartPB"></canvas></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script src="js/deps.js"></script>
   <script src="js/loader.js" data-entry="statsPage"></script>
 </body>

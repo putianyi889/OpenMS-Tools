@@ -39,6 +39,14 @@ window.DEPS = {
   'medalsPage':     { src: 'js/medals/medalsPage.js',
                       deps: ['utils', 'colorscale', 'pbFormat', 'pbLevels',
                              'pbCache', 'medalsRenderer', 'userCache'] },
+  /* 奖牌图 */
+  'medalGridData':     { src: 'js/medalGrid/medalGridData.js',
+                         deps: ['cacheDb'] },
+  'medalGridRenderer': { src: 'js/medalGrid/medalGridRenderer.js',
+                         deps: ['userLabel', 'pbFormat', 'colorscale'] },
+  'medalGridPage':     { src: 'js/medalGrid/medalGridPage.js',
+                         deps: ['utils', 'pbLevels', 'userCache',
+                                'medalGridData', 'medalGridRenderer'] },
 
   /* 互啄 */
   'duelLevel':    'js/duel/duelLevel.js',

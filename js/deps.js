@@ -46,9 +46,21 @@ window.DEPS = {
   /* 奖牌榜 */
   'medalsRenderer': { src: 'js/medals/medalsRenderer.js',
                       deps: ['utils', 'colorscale', 'pbFormat', 'userLabel'] },
-  'medalsPage':     { src: 'js/medals/medalsPage.js',
-                      deps: ['utils', 'colorscale', 'pbFormat', 'pbLevels',
-                             'pbCache', 'medalsRenderer', 'userCache'] },
+  'medalsPage': {
+    src: 'js/medals/medalsPage.js',
+    deps: ['utils', 'colorscale', 'pbFormat', 'pbLevels',
+           'pbCache', 'medalsRenderer', 'userCache'],
+  },
+
+  /* PB 总榜 */
+  'pbRankData':     { src: 'js/pbRank/pbRankData.js',
+                      deps: ['cacheDb', 'pbWeights'] },
+  'pbRankRenderer': { src: 'js/pbRank/pbRankRenderer.js',
+                      deps: ['colorscale', 'userLabel', 'pbFormat'] },
+  'pbRankPage':     { src: 'js/pbRank/pbRankPage.js',
+                      deps: ['utils', 'pbLevels', 'userCache',
+                             'pbRankData', 'pbRankRenderer'] },
+
   /* 奖牌图 */
   'medalGridData':     { src: 'js/medalGrid/medalGridData.js',
                          deps: ['cacheDb'] },

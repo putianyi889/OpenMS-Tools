@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PB 总榜 - 用户视频数据</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/medals.css">
+</head>
+<body>
+  <h1>PB 总榜</h1>
+  <p class="subtitle">
+    每等级全 bv 的汇总排行 · 
+    <a href="index.html" style="color:#58a6ff;">返回导航</a>
+  </p>
+
+  <div class="controls">
+    <label for="levelSelect">等级:</label>
+    <select id="levelSelect"></select>
+    <span class="status" id="status"></span>
+  </div>
+
+  <div class="medal-table-section">
+    <table class="medal-table rank-table" id="rankTable">
+      <thead id="rankHead"></thead>
+      <tbody id="rankBody"></tbody>
+    </table>
+  </div>
+
+  <script src="js/deps.js"></script>
+  <script src="js/loader.js" data-entry="pbRankPage"></script>
+</body>
+</html>

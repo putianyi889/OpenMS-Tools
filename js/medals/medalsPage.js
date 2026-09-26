@@ -57,11 +57,7 @@ async function query() {
     if (valid.length) {
       Utils.setStatus('拉取用户信息...');
       const ids = [...new Set(valid.map(r => String(r.userId)))];
-      userMap = await UserCache.ensureUsers(ids, p => {
-        if (p.phase === 'fetch' && p.total) {
-          Utils.setStatus(`拉取用户信息 ${p.done}/${p.total}`);
-        }
-      });
+      userMap = await UserCache.ensureUsers(ids);
     }
 
     MedalsRenderer.render(valid, level, userMap);
@@ -78,11 +74,8 @@ async function query() {
 function onLevelChange() {
   const level = levelByKey(document.getElementById('levelSelect').value);
   currentLevel = level;
-  // 保持旧 bv；若超出新等级范围，则重置为 minBv
   let bv = Number(currentBv);
-  if (!Number.isFinite(bv) || bv < level.minBv || bv > level.maxBv) {
-    bv = level.minBv;
-  }
+  if (!Number.isFinite(bv) || bv < level.minBv || bv > level.maxBv) bv = level.minBv;
   currentBv = bv;
   fillBvSelect(level, bv);
   writeUrl(level.key, bv);

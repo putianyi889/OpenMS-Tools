@@ -39,9 +39,7 @@ const MedalsRenderer = {
 
       return `<tr>
         <td class="medal-rank"${sc(rankStyle)}>${this.medalIcon(rank)}</td>
-        <td>
-          <a class="user-link" href="stats.html?user_id=${uid}">${label}</a>
-        </td>
+        <td><a class="user-link" href="stats.html?user_id=${uid}">${label}</a></td>
         <td class="num"${sc(timeStyle)}>${PBFormat.escapeHtml(t)}</td>
         <td class="num"${sc(bvsStyle)}>${PBFormat.escapeHtml(bvs)}</td>
         <td class="num"${sc(stnbStyle)}>${PBFormat.escapeHtml(s)}</td>

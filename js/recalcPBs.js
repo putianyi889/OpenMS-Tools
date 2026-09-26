@@ -65,3 +65,60 @@ async function recalcSupportLinesUI() {
     btn.disabled = false;
   }
 }
+
+/* ---------------- 一键重算全部 ---------------- */
+
+async function recalcEverything() {
+  const btn = document.getElementById('recalcAllStart');
+  if (!btn || btn.disabled) return;
+
+  const n = await PBCache.count();
+  if (!confirm('将依次重算：\n1) PB\n2) 排行\n3) 支撑线\n\n是否继续？')) return;
+
+  const progressId = 'recalcAllProgress';
+  btn.disabled = true;
+
+  try {
+    // 阶段 1：重算 PB（清空 rank 和 support）
+    renderPhaseText(progressId, '阶段 1/3 · 重算 PB...');
+    await new Promise(r => setTimeout(r, 0)); // 让 UI 先刷新一帧
+    const r1 = await PBCache.recalcAll(PB_LEVELS, p =>
+      renderProgressBar(progressId, {
+        done: p.done, total: p.total,
+        ok: p.ok, fail: p.fail,
+        current: `用户 ${p.current} · PB ${p.totalPB}`,
+      })
+    );
+
+    // 阶段 2：刷新排行
+    renderPhaseText(progressId, '阶段 2/3 · 刷新排行...');
+    await new Promise(r => setTimeout(r, 0));
+    const r2 = await PBCache.recalcAllRanks(p =>
+      renderProgressBar(progressId, {
+        done: p.done, total: p.total,
+        updated: p.updated,
+        current: p.current ? `位置 ${p.current}` : '',
+      })
+    );
+
+    // 阶段 3：重算支撑线
+    renderPhaseText(progressId, '阶段 3/3 · 重算支撑线...');
+    await new Promise(r => setTimeout(r, 0));
+    const r3 = await recalcAllSupportLines(PB_LEVELS, p =>
+      renderProgressBar(progressId, {
+        done: p.done, total: p.total,
+        updated: p.updated,
+        current: `用户 ${p.current}`,
+      })
+    );
+
+    showProgressResult(progressId,
+      `✓ 全部完成：PB ${r1.totalPB} 条 · 排行 ${r2.updated} 条 · 支撑线 ${r3.updated} 条`,
+      'success');
+  } catch (e) {
+    console.error(e);
+    showProgressResult(progressId, `失败: ${e.message}`, 'error');
+  } finally {
+    btn.disabled = false;
+  }
+}

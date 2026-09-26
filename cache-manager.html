@@ -52,30 +52,14 @@
   </div>
 
   <div class="batch-section">
-    <h3>🔁 重算所有 PB</h3>
-    <p class="hint">遍历所有已缓存用户，从其视频数据重新计算 PB 并覆盖写入。</p>
+    <h3>🔁 一键重算全部</h3>
+    <p class="hint">
+      依次重算：PB → 排行 → 支撑线。使用已缓存的视频数据，无网络请求。
+    </p>
     <div class="controls">
-      <button id="recalcStart" onclick="recalcAllPBs()">开始重算</button>
+      <button id="recalcAllStart" onclick="recalcEverything()">开始重算</button>
     </div>
-    <div class="batch-progress" id="recalcProgress"></div>
-  </div>
-
-  <div class="batch-section">
-    <h3>🏆 刷新排行</h3>
-    <p class="hint">重算每条 PB 在其 (level, bv) 下的排名，写入 pbs 缓存。</p>
-    <div class="controls">
-      <button id="recalcRanksStart" onclick="recalcAllRanksUI()">刷新排行</button>
-    </div>
-    <div class="batch-progress" id="rankProgress"></div>
-  </div>
-
-  <div class="batch-section">
-    <h3>📐 重算支撑线</h3>
-    <p class="hint">遍历所有已缓存用户，重算 I / E 级的支撑线并写入 pbs.support（B 级不参与）。</p>
-    <div class="controls">
-      <button id="recalcSupportStart" onclick="recalcSupportLinesUI()">重算支撑线</button>
-    </div>
-    <div class="batch-progress" id="supportProgress"></div>
+    <div class="batch-progress" id="recalcAllProgress"></div>
   </div>
 
   <div class="cache-table-section">

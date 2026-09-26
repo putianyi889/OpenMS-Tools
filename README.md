@@ -1,3 +1,5 @@
 # 开源扫雷网数据可视化
 
 [开源扫雷网](https://openms.top/#/)开放了很多数据API，但是考虑到生产代码质量，很多可视化还没有实现。本仓库为纯AI制作的数据可视化页面。
+
+[GitHub Pages](https://putianyi889.github.io/OpenMS-Tools/)

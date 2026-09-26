@@ -66,68 +66,52 @@
     </a>
   </div>
 
-  <script src="js/utils.js"></script>
-  <script src="js/requestQueue.js"></script>
-  <script src="js/cacheDb.js"></script>
-  <script src="js/cache.js"></script>
-  <script src="js/api.js"></script>
+  <script src="js/deps.js"></script>
+  <script src="js/loader.js" data-entry="api"></script>
   <script>
-    const input = document.getElementById('userId');
-
-    // 1. 优先使用 URL 参数 ?user_id=xxx，其次使用 localStorage 里记住的 ID
-    const urlId = Utils.getUserId();
-    const savedId = Utils.lastUserId();
-    if (urlId) input.value = urlId;
-    else if (savedId) input.value = savedId;
-
-    // 2. 回填后立即预取（延迟一点，等页面渲染完）
-    if (input.value) {
-      input.dispatchEvent(new Event('input'));
-    }
-
-    function nav(page) {
-      const id = input.value.trim();
-      if (!id || isNaN(id) || Number(id) < 1) {
-        alert('请输入有效的用户 ID');
-        return;
-      }
-      Utils.rememberUserId(id);
-      location.href = `${page}?user_id=${id}`;
-    }
-
-    // 输入 ID 后自动预取到 IndexedDB，并记住这个 ID
-    let prefetchTimer;
-    input.addEventListener('input', e => {
-      clearTimeout(prefetchTimer);
-      const id = e.target.value.trim();
+    document.addEventListener('scripts-ready', () => {
+      const input = document.getElementById('userId');
       const tip = document.getElementById('prefetchTip');
-      if (!id || isNaN(id) || Number(id) < 1) { tip.textContent = ''; return; }
 
-      Utils.rememberUserId(id);
+      const urlId = Utils.getUserId();
+      const savedId = Utils.lastUserId();
+      if (urlId) input.value = urlId;
+      else if (savedId) input.value = savedId;
+      if (input.value) input.dispatchEvent(new Event('input'));
 
-      prefetchTimer = setTimeout(async () => {
-        // 用户又改了输入？丢弃这次预取
-        if (input.value.trim() !== id) return;
+      window.nav = function (page) {
+        const id = input.value.trim();
+        if (!id || isNaN(id) || Number(id) < 1) { alert('请输入有效的用户 ID'); return; }
+        Utils.rememberUserId(id);
+        location.href = `${page}?user_id=${id}`;
+      };
 
-        const cached = await Cache.read(id);
-        if (cached) {
-          tip.textContent = `⚡ 已缓存 ${cached.data.length} 条 · ${Cache.ageText(cached.age)}`;
-          return;
-        }
-        tip.textContent = '预加载中...';
-        try {
-          const data = await fetchVideos(id);
-          if (input.value.trim() !== id) return; // 完成时用户已改
-          await Cache.write(id, data);
-          tip.textContent = `✓ 已预加载 ${data.length} 条数据`;
-        } catch {
-          tip.textContent = '';
-        }
-      }, 600);
-    });
+      let timer;
+      input.addEventListener('input', e => {
+        clearTimeout(timer);
+        const id = e.target.value.trim();
+        if (!id || isNaN(id) || Number(id) < 1) { tip.textContent = ''; return; }
+        Utils.rememberUserId(id);
+        timer = setTimeout(async () => {
+          if (input.value.trim() !== id) return;
+          const cached = await Cache.read(id);
+          if (cached) {
+            tip.textContent = `⚡ 已缓存 ${cached.data.length} 条 · ${Cache.ageText(cached.age)}`;
+            return;
+          }
+          tip.textContent = '预加载中...';
+          try {
+            const data = await fetchVideos(id);
+            if (input.value.trim() !== id) return;
+            await Cache.write(id, data);
+            tip.textContent = `✓ 已预加载 ${data.length} 条数据`;
+          } catch { tip.textContent = ''; }
+        }, 600);
+      });
 
-    input.addEventListener('keydown', e => {
-      if (e.key === 'Enter') nav('stats.html');
+      input.addEventListener('keydown', e => {
+        if (e.key === 'Enter') window.nav('stats.html');
+      });
     });
   </script>
 </body>

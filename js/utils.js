@@ -64,7 +64,12 @@ const Utils = {
   }
 };
 
-document.addEventListener('DOMContentLoaded', () => {
+function _utilsInit() {
   Utils.setupBackLink();
   Utils.setupRefreshLink();
-});
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', _utilsInit);
+} else {
+  _utilsInit();
+}

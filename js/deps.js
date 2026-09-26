@@ -79,7 +79,8 @@ window.DEPS = {
                            'supportLine', 'tierLoader', 'tierRenderer', 'tierLines'] },
 
   /* 缓存管理 */
-  'cacheManager': { src: 'js/cacheManager.js', deps: ['utils', 'cacheDb', 'cache'] },
+  'cacheManager': { src: 'js/cacheManager.js',
+                    deps: ['utils', 'cacheDb', 'cache', 'userCache', 'userLabel'] },
   'batchLoader':  { src: 'js/batchLoader.js',  deps: ['utils', 'api', 'cache'] },
   'recalcPBs':    { src: 'js/recalcPBs.js',
                     deps: ['utils', 'pbCache', 'pbLevels', 'supportLine'] },

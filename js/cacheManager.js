@@ -35,9 +35,25 @@ async function refreshList() {
     </div>
   `;
 
-  tbody.innerHTML = items.map(it => `
+  // 拉取用户 realname（缓存命中则零网络）
+  const ids = items.map(it => String(it.userId));
+  let userMap = new Map();
+  try {
+    userMap = await UserCache.ensureUsers(ids, p => {
+      if (p.phase === 'fetch' && p.total) {
+        status.textContent = `拉取用户信息 ${p.done}/${p.total}...`;
+      }
+    });
+  } catch (e) {
+    console.warn('用户信息拉取失败，使用 #id 兜底', e);
+  }
+
+  tbody.innerHTML = items.map(it => {
+    const uid = String(it.userId);
+    const label = UserLabel.format(uid, userMap.get(uid));
+    return `
     <tr>
-      <td><strong>${it.userId}</strong></td>
+      <td><a class="btn-link" href="stats.html?user_id=${uid}">${label}</a></td>
       <td>${it.count.toLocaleString()}</td>
       <td>${Cache.fmtSize(it.size)}</td>
       <td>
@@ -45,12 +61,13 @@ async function refreshList() {
         <br><span class="muted">${Cache.ageText(it.age)}</span>
       </td>
       <td class="actions">
-        <a class="btn-link" href="stats.html?user_id=${it.userId}">查看</a>
-        <a class="btn-link warn" href="stats.html?user_id=${it.userId}&refresh=1">刷新</a>
-        <button class="btn-link danger" onclick="removeOne('${it.userId}')">删除</button>
+        <a class="btn-link" href="stats.html?user_id=${uid}">查看</a>
+        <a class="btn-link warn" href="stats.html?user_id=${uid}&refresh=1">刷新</a>
+        <button class="btn-link danger" onclick="removeOne('${uid}')">删除</button>
       </td>
     </tr>
-  `).join('');
+  `;
+  }).join('');
 
   empty.style.display = 'none';
   status.textContent = `已加载 ${items.length} 条缓存记录`;
@@ -69,4 +86,7 @@ async function clearAllCaches() {
   await refreshList();
 }
 
-refreshList();
+/* 首次进入页面时自动刷新 */
+if (document.getElementById('cacheTable')) {
+  refreshList();
+}

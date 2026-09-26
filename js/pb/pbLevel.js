@@ -1,6 +1,5 @@
 /**
- * 一个等级的 PB 计算 + 单元格渲染配置。
- * 显示模式：'time' | 'bvs' | 'stnb' | 'rank'。
+ * 一个等级的 PB 计算 + 单元格渲染 + 求和/平均用的取值。
  */
 class PBLevel {
   constructor({ key, label, minBv, maxBv, stnbC }) {
@@ -10,7 +9,8 @@ class PBLevel {
     this.maxBv = maxBv;
     this.stnbC = stnbC;
     this.displayMode = 'time';
-    this.rankMap = new Map(); // Map<bv, rank>
+    this.rankMap = new Map();
+    this.defaultTime = { b: 10, i: 60, e: 240 }[key] || 10;
   }
 
   static MODES = ['time', 'bvs', 'stnb', 'rank'];
@@ -62,12 +62,63 @@ class PBLevel {
     this.displayMode = PBLevel.MODES.includes(mode) ? mode : 'time';
   }
 
-  /** 注入本等级下 bv → rank 的映射；传空则清空 */
   setRankMap(map) {
     this.rankMap = map instanceof Map ? map : new Map();
   }
 
-  /* ---------------- 单元格内容片段 ---------------- */
+  getScaleName() {
+    switch (this.displayMode) {
+      case 'time': return `${this.key}_time`;
+      case 'bvs':  return 'bvs';
+      case 'stnb': return 'stnb';
+      case 'rank': return 'rank';
+    }
+    return '';
+  }
+
+  /* ---------------- 求和/平均取值 ---------------- */
+
+  /**
+   * 用于行统计的值。缺失 PB 时使用默认值：
+   *   time → defaultTime（b:10 / i:60 / e:240 秒）
+   *   bvs / stnb / rank → 0
+   * rank 模式取乘法逆（1/rank）。
+   */
+  getValueForStat(bv, pb) {
+    if (!pb) {
+      return this.displayMode === 'time' ? this.defaultTime : 0;
+    }
+    switch (this.displayMode) {
+      case 'time': return pb.timems / 1000;
+      case 'bvs':  return pb.bv / (pb.timems / 1000);
+      case 'stnb': return this.stnbC * pb.bv / Math.pow(pb.timems / 1000, 1.7);
+      case 'rank': {
+        const r = this.rankMap.get(bv);
+        return typeof r === 'number' && r > 0 ? 1 / r : 0;
+      }
+    }
+    return 0;
+  }
+
+  /**
+   * 用于单元格取色的值。rank 模式下返回 rank 本身（而非 1/rank）。
+   * 与 getValueForStat 分离：前者给色阶，后者给求和/加权平均。
+   */
+  getValueForScale(bv, pb) {
+    if (!pb) return null;
+    switch (this.displayMode) {
+      case 'time': return pb.timems / 1000;
+      case 'bvs':  return pb.bv / (pb.timems / 1000);
+      case 'stnb': return this.stnbC * pb.bv / Math.pow(pb.timems / 1000, 1.7);
+      case 'rank': {
+        const r = this.rankMap.get(bv);
+        return typeof r === 'number' ? r : null;
+      }
+    }
+    return null;
+  }
+
+  /* ---------------- 单元格内容 ---------------- */
 
   getCellText(bv, pb) {
     switch (this.displayMode) {
@@ -81,24 +132,17 @@ class PBLevel {
   renderTime(pb) {
     return `<span class="pb-time">${PBFormat.escapeHtml(PBFormat.time(pb.timems))}</span>`;
   }
-
   renderBvs(bv, pb) {
     return `<span class="pb-bvs">${PBFormat.escapeHtml(PBFormat.bvs(bv, pb.timems))}</span>`;
   }
-
   renderStnb(bv, pb) {
     const v = PBFormat.stnb(this.stnbC, bv, pb.timems);
     return `<span class="pb-stnb">${PBFormat.escapeHtml(v)}</span>`;
   }
-
-  renderRank(bv /*, pb */) {
+  renderRank(bv) {
     const r = this.rankMap ? this.rankMap.get(bv) : null;
     const text = typeof r === 'number' ? String(r) : '—';
     return `<span class="pb-rank">${PBFormat.escapeHtml(text)}</span>`;
-  }
-
-  renderBadge(text, extraClass = '') {
-    return `<span class="pb-badge ${extraClass}">${PBFormat.escapeHtml(text)}</span>`;
   }
 
   getCellTooltip(bv, pb) {
@@ -115,42 +159,10 @@ class PBLevel {
            `上传: ${pb.upload_time ?? '—'}`;
   }
 
-  /* ---------------- 色阶 ---------------- */
-
-  /** 当前显示模式对应的色阶名 */
-  getScaleName() {
-    switch (this.displayMode) {
-      case 'time': return `${this.key}_time`; // b_time / i_time / e_time
-      case 'bvs':  return 'bvs';
-      case 'stnb': return 'stnb';
-      case 'rank': return 'rank';
-    }
-    return '';
-  }
-
-  /** 当前模式下用于色阶判断的数值 */
-  getValueForScale(bv, pb) {
-    switch (this.displayMode) {
-      case 'time': return pb.timems / 1000;
-      case 'bvs':  return pb.bv / (pb.timems / 1000);
-      case 'stnb': return this.stnbC * pb.bv / Math.pow(pb.timems / 1000, 1.7);
-      case 'rank': {
-        const r = this.rankMap ? this.rankMap.get(bv) : null;
-        return typeof r === 'number' ? r : null;
-      }
-    }
-    return null;
-  }
-
   /* ---------------- 单元格渲染 ---------------- */
 
-  isInRange(bv) {
-    return bv >= this.minBv && bv <= this.maxBv;
-  }
-
-  getCellClasses(/* bv, pb */) {
-    return '';
-  }
+  isInRange(bv) { return bv >= this.minBv && bv <= this.maxBv; }
+  getCellClasses() { return ''; }
 
   renderCell(bv, pb) {
     if (!this.isInRange(bv)) {
@@ -162,14 +174,11 @@ class PBLevel {
     }
     const inner = this.getCellText(bv, pb);
     const tip = PBFormat.escapeHtml(this.getCellTooltip(bv, pb));
-    const extra = this.getCellClasses(bv, pb).trim();
     const style = ColorScale.styleFor(this.getValueForScale(bv, pb), this.getScaleName());
-    const cls = `pb-cell pb-has${extra ? ' ' + extra : ''}`;
     const styleAttr = style ? ` style="${style}"` : '';
+    const cls = `pb-cell pb-has${this.getCellClasses(bv, pb).trim() ? ' ' + this.getCellClasses(bv, pb).trim() : ''}`;
     return `<div class="${cls}"${styleAttr} title="${tip}">${inner}</div>`;
   }
 
-  get maxTens() {
-    return Math.floor(this.maxBv / 10);
-  }
+  get maxTens() { return Math.floor(this.maxBv / 10); }
 }

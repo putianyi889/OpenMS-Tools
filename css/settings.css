@@ -1,0 +1,70 @@
+.settings-section {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+}
+.settings-section h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #c9d1d9;
+  margin-bottom: 8px;
+}
+.settings-section .hint {
+  font-size: 0.82rem;
+  color: #8b949e;
+  line-height: 1.6;
+  margin-bottom: 10px;
+}
+.settings-section strong { color: #c9d1d9; }
+
+.settings-section textarea {
+  width: 100%;
+  min-height: 160px;
+  background: #0f1117;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  color: #e1e4e8;
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  padding: 10px 12px;
+  resize: vertical;
+  outline: none;
+  box-sizing: border-box;
+}
+.settings-section textarea:focus { border-color: #58a6ff; }
+
+.settings-section .controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+.settings-section .controls button {
+  background: linear-gradient(135deg, #238636, #2ea043);
+  border: none; color: #fff;
+  padding: 6px 18px; border-radius: 6px;
+  font-size: 0.88rem; font-weight: 500; cursor: pointer;
+}
+.settings-section .controls button.danger {
+  background: linear-gradient(135deg, #da3633, #f85149);
+}
+.settings-section .controls button:hover { opacity: 0.9; }
+
+#currentInfo {
+  margin-top: 10px;
+  color: #58a6ff;
+  font-size: 0.82rem;
+}
+
+.settings-section .hint.info {
+  color: #8b949e;
+  font-variant-numeric: tabular-nums;
+  margin-top: 10px;
+  margin-bottom: 0;
+}
+.settings-section .hint.info.ok {
+  color: #58a6ff;
+}

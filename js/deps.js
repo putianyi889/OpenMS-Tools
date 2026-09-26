@@ -9,10 +9,11 @@ window.DEPS = {
 
   /* PB 基础 */
   'pbFormat':   'js/pb/pbFormat.js',
+  'pbWeights':  { src: 'js/pb/pbWeights.js', deps: [] },
   'pbLevel':    { src: 'js/pb/pbLevel.js',   deps: ['pbFormat', 'colorscale'] },
   'pbLevels':   { src: 'js/pb/pbLevels.js',  deps: ['pbLevel'] },
   'pbCache':    { src: 'js/pb/pbCache.js',   deps: ['cacheDb'] },
-  'pbRenderer': 'js/pb/pbRenderer.js',
+  'pbRenderer': { src: 'js/pb/pbRenderer.js', deps: ['colorscale', 'pbWeights'] },
   'pbPage':     { src: 'js/pb/pbPage.js',
                   deps: ['utils', 'api', 'pbLevels', 'pbCache', 'pbRenderer'] },
 
@@ -40,6 +41,7 @@ window.DEPS = {
            'chartMode', 'chartState', 'chartTimems'],
   },
   'tablePage': { src: 'js/table.js', deps: ['utils', 'api'] },
+  'settingsPage': { src: 'js/settings/settingsPage.js', deps: ['pbWeights'] },
 
   /* 奖牌榜 */
   'medalsRenderer': { src: 'js/medals/medalsRenderer.js',

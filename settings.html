@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>设置 - PB 权重</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/settings.css">
+</head>
+<body>
+  <h1>设置</h1>
+  <p class="subtitle">
+    PB 权重配置 · 
+    <a href="index.html" style="color:#58a6ff;">返回导航</a>
+  </p>
+
+  <div class="settings-section" data-level="b">
+    <h3>B 级权重</h3>
+    <p class="hint">
+      输入 JSON 数组，<strong>下标为 bv</strong>（索引 0 保留占位，bv 从 1 开始）。
+      值是该 bv 的权重，用于 PB 网格的加权平均列。总和不必为 1，
+      算法会按 Σ(v·w)/Σ(w) 归一化。
+    </p>
+    <textarea id="weight-b" rows="10" placeholder='[0, 0.02, 0.05, 0.01, ...]'></textarea>
+    <div class="controls">
+      <button onclick="saveWeights('b')">保存</button>
+      <button class="danger" onclick="clearWeights('b')">清空</button>
+      <span class="status" id="status-b"></span>
+    </div>
+    <div class="hint info" id="info-b"></div>
+  </div>
+
+  <div class="settings-section" data-level="i">
+    <h3>I 级权重</h3>
+    <p class="hint">同 B 级，下标为 bv。</p>
+    <textarea id="weight-i" rows="10" placeholder='[0, 0.02, 0.05, 0.01, ...]'></textarea>
+    <div class="controls">
+      <button onclick="saveWeights('i')">保存</button>
+      <button class="danger" onclick="clearWeights('i')">清空</button>
+      <span class="status" id="status-i"></span>
+    </div>
+    <div class="hint info" id="info-i"></div>
+  </div>
+
+  <div class="settings-section" data-level="e">
+    <h3>E 级权重</h3>
+    <p class="hint">同 B 级，下标为 bv。</p>
+    <textarea id="weight-e" rows="12" placeholder='[0, 0.02, 0.05, 0.01, ...]'></textarea>
+    <div class="controls">
+      <button onclick="saveWeights('e')">保存</button>
+      <button class="danger" onclick="clearWeights('e')">清空</button>
+      <span class="status" id="status-e"></span>
+    </div>
+    <div class="hint info" id="info-e"></div>
+  </div>
+
+  <script src="js/deps.js"></script>
+  <script src="js/loader.js" data-entry="settingsPage"></script>
+</body>
+</html>

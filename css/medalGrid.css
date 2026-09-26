@@ -72,6 +72,13 @@
   color: #58a6ff;
 }
 
+.mg-cell.mg-filled {
+  opacity: 0.5;
+}
+.mg-cell.mg-filled:hover {
+  opacity: 0.85;
+}
+
 .mg-empty-state {
   padding: 40px 16px;
   text-align: center;

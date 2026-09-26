@@ -46,5 +46,26 @@ const MedalGridData = (() => {
   function pbCount() { return totalPB; }
   function invalidate() { index = null; totalPB = 0; }
 
-  return { load, getAtRank, positionsAtRank, hasData, pbCount, invalidate };
+  /**
+   * 返回实际存在的、≤ rank 的最大 rank 值；无则返回 null。
+   * 用于把空 rank 向下填充到最近的有人档。
+   */
+  function resolveRank(levelKey, bv, rank) {
+    if (!index) return null;
+    const rankMap = index.get(`${levelKey}|${bv}`);
+    if (!rankMap || !rankMap.size) return null;
+    if (rankMap.has(rank)) return rank;
+
+    let maxRank = 0;
+    let below = null;
+    for (const r of rankMap.keys()) {
+      if (r > maxRank) maxRank = r;
+      if (r < rank && (below === null || r > below)) below = r;
+    }
+    // 超出实际最大 rank → 不填充
+    if (rank > maxRank) return null;
+    return below;
+  }
+
+  return { load, getAtRank, resolveRank, positionsAtRank, hasData, pbCount, invalidate };
 })();

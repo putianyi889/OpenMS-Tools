@@ -84,10 +84,12 @@ class MedalGridRenderer {
     if (bv < level.minBv || bv > level.maxBv) {
       return `<div class="mg-cell mg-empty"></div>`;
     }
-    const records = MedalGridData.getAtRank(level.key, bv, rank);
-    if (!records.length) {
+    const actualRank = MedalGridData.resolveRank(level.key, bv, rank);
+    if (actualRank === null) {
       return `<div class="mg-cell mg-missing">—</div>`;
     }
+    const records = MedalGridData.getAtRank(level.key, bv, actualRank);
+    const filled = actualRank !== rank;
 
     const lines = records.map(r => {
       const uid = String(r.userId ?? '?');
@@ -109,8 +111,13 @@ class MedalGridRenderer {
       return `${label}\ntime: ${time} s\nbvs: ${bvs}` +
              (typeof occ === 'number' ? `\n出现排名: ${occ}` : '');
     });
-    const tip = PBFormat.escapeHtml(`bv ${bv}\n` + tips.join('\n---\n'));
 
-    return `<div class="mg-cell mg-has" title="${tip}">${lines.join('')}</div>`;
+    const header = filled
+      ? `bv ${bv} · 实际 rank ${actualRank}（rank ${rank} 被并列跳过）\n`
+      : `bv ${bv}\n`;
+    const tip = PBFormat.escapeHtml(header + tips.join('\n---\n'));
+    const cls = `mg-cell mg-has${filled ? ' mg-filled' : ''}`;
+
+    return `<div class="${cls}" title="${tip}">${lines.join('')}</div>`;
   }
 }

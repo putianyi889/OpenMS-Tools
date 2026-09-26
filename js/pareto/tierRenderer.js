@@ -1,37 +1,30 @@
 const TierRenderer = (() => {
-  function render(container, groups, pointsByUser, levelKey, onToggle) {
+  function render(container, groups, userMap, onToggle) {
     if (!groups.size) {
       container.innerHTML =
         `<div class="tier-empty">暂无分档数据（可能尚未重算支撑线）</div>`;
       return;
     }
-
     const tiers = [...groups.keys()].sort((a, b) => a - b);
-    container.innerHTML = tiers
-      .map(t => renderTier(t, groups.get(t)))
-      .join('');
+    container.innerHTML = tiers.map(t => renderTier(t, groups.get(t), userMap)).join('');
 
     container.addEventListener('change', e => {
       const cb = e.target;
       if (!cb.matches('input[type="checkbox"]')) return;
       const key = cb.dataset.lineKey;
       const checked = cb.checked;
-      container
-        .querySelectorAll(`input[data-line-key="${key}"]`)
+      container.querySelectorAll(`input[data-line-key="${key}"]`)
         .forEach(other => { other.checked = checked; });
       onToggle(key, checked);
     });
   }
 
-  function renderTier(tier, subMap) {
+  function renderTier(tier, subMap, userMap) {
     const total = [...subMap.values()].reduce((s, a) => s + a.length, 0);
     const subs = [...subMap.keys()].sort((a, b) => a - b);
     const tierKey = `${tier}-1`;
-
     const subHtml = subs.map(st =>
-      renderSubtier(tier, st, subMap.get(st))
-    ).join('');
-
+      renderSubtier(tier, st, subMap.get(st), userMap)).join('');
     return `
       <div class="tier">
         <label class="tier-header">
@@ -44,11 +37,12 @@ const TierRenderer = (() => {
     `;
   }
 
-  function renderSubtier(tier, st, userIds) {
+  function renderSubtier(tier, st, userIds, userMap) {
     const key = `${tier}-${st}`;
-    const cards = userIds
-      .map(uid => `<a class="user-card" href="stats.html?user_id=${uid}">#${uid}</a>`)
-      .join('');
+    const cards = userIds.map(uid => {
+      const label = UserLabel.format(uid, userMap.get(uid));
+      return `<a class="user-card" href="stats.html?user_id=${uid}">${label}</a>`;
+    }).join('');
     return `
       <div class="subtier">
         <label class="subtier-header">

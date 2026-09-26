@@ -4,11 +4,9 @@ const TierLoader = (() => {
   async function load(levelKey, { force = false, onProgress } = {}) {
     if (!force && cache.has(levelKey)) return cache.get(levelKey);
 
-    // 1. 列出所有已缓存用户
     const lists = await CacheDB.getAll(CacheDB.STORE_LISTS);
     const userIds = lists.map(r => String(r.userId)).sort();
 
-    // 2. 逐用户读支撑线
     const users = [];
     const pointsByUser = new Map();
     let done = 0;
@@ -24,11 +22,9 @@ const TierLoader = (() => {
       }
     }
 
-    // 3. 计算
     const { tierOf, subtierOf, subtierLines } =
       TierAlgo.computeTiers(users, { onProgress });
 
-    // 4. 组织为 Map<tier, Map<subtier, userIds[]>>
     const groups = new Map();
     for (const [uid, t] of tierOf) {
       const st = subtierOf.get(uid);
@@ -37,8 +33,18 @@ const TierLoader = (() => {
       groups.get(t).get(st).push(uid);
     }
 
+    // 拉取参与分档的用户的 realname（缓存命中 + 缺失走 API）
+    const userMap = await UserCache.ensureUsers(
+      users.map(u => u.userId),
+      p => {
+        if (p.phase === 'fetch' && p.total) {
+          onProgress && onProgress({ phase: 'userinfo', done: p.done, total: p.total });
+        }
+      }
+    );
+
     const result = {
-      groups, subtierLines, pointsByUser,
+      groups, subtierLines, pointsByUser, userMap,
       totalUsers: users.length,
       ts: Date.now(),
     };

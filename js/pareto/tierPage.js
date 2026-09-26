@@ -38,8 +38,9 @@ async function loadAndRender(levelKey, force) {
     const data = await TierLoader.load(levelKey, {
       force,
       onProgress: p => {
-        if (p.phase === 'load') Utils.setStatus(`读取支撑线 ${p.done}/${p.total}`);
+        if (p.phase === 'load')     Utils.setStatus(`读取支撑线 ${p.done}/${p.total}`);
         else if (p.phase === 'subtier') Utils.setStatus(`子分档 ${p.done}/${p.total}`);
+        else if (p.phase === 'userinfo') Utils.setStatus(`拉取用户信息 ${p.done}/${p.total}`);
       },
     });
     currentData = data;
@@ -48,8 +49,7 @@ async function loadAndRender(levelKey, force) {
     TierRenderer.render(
       document.getElementById('tierStructure'),
       data.groups,
-      data.pointsByUser,
-      levelKey,
+      data.userMap,
       (key, checked) => {
         if (checked) selectedKeys.add(key); else selectedKeys.delete(key);
         updateChart();

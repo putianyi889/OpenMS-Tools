@@ -1,9 +1,12 @@
-const CacheDB = (() => {
+/**
+ * 用户信息缓存的底层 IndexedDB 封装。
+ * 与 CacheDB 共用同一个数据库（openms_video_cache），通过版本升级添加新 store。
+ */
+const UserCacheDB = (() => {
   const DB_NAME = 'openms_video_cache';
-  const DB_VERSION = 4;
-  const STORE_VIDEOS = 'videos';
-  const STORE_LISTS = 'video_lists';
-  const STORE_PBS = 'pbs';
+  const DB_VERSION = 4;  // 从 3 升到 4，增量添加用户相关 store
+  const STORE_USERS = 'users';
+  const STORE_SYNC = 'user_sync';
   const supported = typeof indexedDB !== 'undefined';
   let dbPromise = null;
 
@@ -14,31 +17,21 @@ const CacheDB = (() => {
 
       req.onupgradeneeded = e => {
         const db = e.target.result;
-        // 增量升级：只为缺失的 store 创建结构，保留已有数据
-        if (!db.objectStoreNames.contains(STORE_VIDEOS)) {
-          const videos = db.createObjectStore(STORE_VIDEOS, { keyPath: 'id' });
-          videos.createIndex('userId', 'userId', { unique: false });
-          videos.createIndex('userId_level', ['userId', 'level'], { unique: false });
-          videos.createIndex('userId_level_bv', ['userId', 'level', 'bv'], { unique: false });
-          videos.createIndex('level_bv', ['level', 'bv'], { unique: false });
+        // 已有的 store 保持不变（videos / video_lists / pbs）
+        // 新增：users —— keyPath = userId
+        if (!db.objectStoreNames.contains(STORE_USERS)) {
+          const users = db.createObjectStore(STORE_USERS, { keyPath: 'userId' });
+          users.createIndex('updated_at', 'updated_at', { unique: false });
+          users.createIndex('realname', 'realname', { unique: false });
         }
-        if (!db.objectStoreNames.contains(STORE_LISTS)) {
-          const lists = db.createObjectStore(STORE_LISTS, { keyPath: 'userId' });
-          lists.createIndex('ts', 'ts', { unique: false });
-        }
-        if (!db.objectStoreNames.contains(STORE_PBS)) {
-          // 复合主键：[userId, level, bv]
-          const pbs = db.createObjectStore(STORE_PBS, {
-            keyPath: ['userId', 'level', 'bv']
-          });
-          pbs.createIndex('userId', 'userId', { unique: false });
-          pbs.createIndex('level_bv', ['level', 'bv'], { unique: false });
+        // 新增：user_sync —— keyPath = key（单条记录，key = 'meta'）
+        if (!db.objectStoreNames.contains(STORE_SYNC)) {
+          db.createObjectStore(STORE_SYNC, { keyPath: 'key' });
         }
       };
 
       req.onsuccess = e => {
         const db = e.target.result;
-        // 其它标签页请求升级本库时，主动让出连接，避免升级被阻塞
         db.onversionchange = () => {
           try { db.close(); } catch {}
           dbPromise = null;
@@ -50,9 +43,7 @@ const CacheDB = (() => {
         resolve(db);
       };
       req.onerror = () => reject(req.error);
-      req.onblocked = () => reject(new Error(
-        '数据库升级被其他标签页阻塞，请关闭其它标签页后重试'
-      ));
+      req.onblocked = () => reject(new Error('数据库升级被其他标签页阻塞'));
     });
     return dbPromise;
   }
@@ -85,10 +76,16 @@ const CacheDB = (() => {
     return run([storeName], 'readonly', t =>
       t.objectStore(storeName).index(indexName).getAll(query));
   }
+  function count(storeName) {
+    return run([storeName], 'readonly', t => t.objectStore(storeName).count());
+  }
+  function clearStore(storeName) {
+    return run([storeName], 'readwrite', t => t.objectStore(storeName).clear());
+  }
 
   return {
-    openDB, run, get, getAll, getAllByIndex,
+    openDB, run, get, getAll, getAllByIndex, count, clearStore,
     supported,
-    STORE_VIDEOS, STORE_LISTS, STORE_PBS, DB_VERSION,
+    STORE_USERS, STORE_SYNC, DB_VERSION,
   };
 })();

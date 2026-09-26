@@ -52,7 +52,19 @@ async function query() {
     const valid = records
       .filter(r => r && typeof r.timems === 'number')
       .sort((a, b) => a.timems - b.timems);
-    MedalsRenderer.render(valid, level);
+
+    let userMap = new Map();
+    if (valid.length) {
+      Utils.setStatus('拉取用户信息...');
+      const ids = [...new Set(valid.map(r => String(r.userId)))];
+      userMap = await UserCache.ensureUsers(ids, p => {
+        if (p.phase === 'fetch' && p.total) {
+          Utils.setStatus(`拉取用户信息 ${p.done}/${p.total}`);
+        }
+      });
+    }
+
+    MedalsRenderer.render(valid, level, userMap);
     Utils.setStatus(
       valid.length ? `共 ${valid.length} 位用户的 PB` : '该位置暂无缓存的 PB',
       valid.length ? 'success' : ''

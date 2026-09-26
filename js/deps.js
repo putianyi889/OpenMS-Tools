@@ -34,14 +34,11 @@ window.DEPS = {
   'tablePage': { src: 'js/table.js', deps: ['utils', 'api'] },
 
   /* 奖牌榜 */
-  'medalsRenderer': {
-    src: 'js/medals/medalsRenderer.js',
-    deps: ['utils', 'colorscale', 'pbFormat'],
-  },
-  'medalsPage': {
-    src: 'js/medals/medalsPage.js',
-    deps: ['utils', 'colorscale', 'pbFormat', 'pbLevels', 'pbCache', 'medalsRenderer'],
-  },
+  'medalsRenderer': { src: 'js/medals/medalsRenderer.js',
+                      deps: ['utils', 'colorscale', 'pbFormat', 'userLabel'] },
+  'medalsPage':     { src: 'js/medals/medalsPage.js',
+                      deps: ['utils', 'colorscale', 'pbFormat', 'pbLevels',
+                             'pbCache', 'medalsRenderer', 'userCache'] },
 
   /* 互啄 */
   'duelLevel':    'js/duel/duelLevel.js',
@@ -59,14 +56,15 @@ window.DEPS = {
   'supportRenderer': { src: 'js/support/supportRenderer.js', deps: ['utils'] },
   'supportPage': {
     src: 'js/support/supportPage.js',
-    deps: ['utils', 'pbLevels', 'pbCache', 'supportLine', 'supportRenderer'],
+    deps: ['utils', 'pbLevels', 'pbCache', 'supportLine', 'supportRenderer',
+           'userCache', 'userLabel'],
   },
 
   /* 分档 */
   'tierAlgo':     'js/pareto/tierAlgo.js',
   'tierLoader':   { src: 'js/pareto/tierLoader.js',
-                    deps: ['cacheDb', 'pbCache', 'supportLine', 'tierAlgo'] },
-  'tierRenderer': 'js/pareto/tierRenderer.js',
+                    deps: ['cacheDb', 'pbCache', 'supportLine', 'tierAlgo', 'userCache'] },
+  'tierRenderer': { src: 'js/pareto/tierRenderer.js', deps: ['userLabel'] },
   'tierLines':    { src: 'js/pareto/tierLinesRenderer.js', deps: ['utils'] },
   'tierPage':     { src: 'js/pareto/tierPage.js',
                     deps: ['utils', 'colorscale', 'pbLevels', 'pbCache',
@@ -77,4 +75,19 @@ window.DEPS = {
   'batchLoader':  { src: 'js/batchLoader.js',  deps: ['utils', 'api', 'cache'] },
   'recalcPBs':    { src: 'js/recalcPBs.js',
                     deps: ['utils', 'pbCache', 'pbLevels', 'supportLine'] },
+
+  /* 用户信息缓存 */
+  'userCacheDb': { src: 'js/userCacheDb.js', deps: [] },
+  'userApi':     { src: 'js/userApi.js',     deps: ['requestQueue'] },
+  'userCache':   { src: 'js/userCache.js',   deps: ['userCacheDb', 'userApi'] },
+  'userLabel':   { src: 'js/userLabel.js',   deps: [] },
+
+  /* 公共进度 UI */
+  'progressUI': { src: 'js/progressUI.js', deps: [] },
+
+  /* 缓存管理页的 UI 脚本 */
+  'recalcPBs':  { src: 'js/recalcPBs.js',
+                  deps: ['utils', 'pbCache', 'pbLevels', 'supportLine', 'progressUI'] },
+  'userSyncUI': { src: 'js/userSyncUI.js',
+                  deps: ['utils', 'userCache', 'progressUI'] },
 };

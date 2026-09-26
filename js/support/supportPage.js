@@ -19,6 +19,18 @@ async function renderSupport() {
   if (!showMerged) p.set('merged', '0');
   history.replaceState(null, '', location.pathname + '?' + p.toString());
 
+  // 拉取 realname（缓存命中则零网络）
+  let userMap = new Map();
+  try {
+    userMap = await UserCache.ensureUsers(ids, p2 => {
+      if (p2.phase === 'fetch' && p2.total) {
+        Utils.setStatus(`拉取用户信息 ${p2.done}/${p2.total}`);
+      }
+    });
+  } catch (e) {
+    console.warn('用户信息拉取失败，使用 #id 兜底', e);
+  }
+
   let totalDrawn = 0, totalPoints = 0;
 
   for (const levelKey of SUPPORT_LEVEL_KEYS) {
@@ -30,9 +42,13 @@ async function renderSupport() {
         const points = await PBCache.getSupportLine(id, levelKey);
         if (!points.length) continue;
         perUserPoints.push(points);
-        seriesList.push({ userId: id, label: `#${id}`, points });
+        seriesList.push({
+          userId: id,
+          label: UserLabel.formatText(id, userMap.get(String(id))),
+          points,
+        });
       } catch (e) {
-        console.warn(`用户 ${id} · ${levelKey} 读取失败`, e);
+        console.warn(`用户 ${id} · ${levelKey} 支撑线读取失败`, e);
       }
     }
 

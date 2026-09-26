@@ -25,6 +25,16 @@
   <div class="summary" id="summary"></div>
 
   <div class="batch-section">
+    <h3>👤 同步用户信息</h3>
+    <p class="hint">增量拉取自上次同步后被更新的用户信息（走 RequestQueue 限流）。</p>
+    <div class="controls">
+      <button id="userSyncStart" onclick="syncUserInfo()">同步用户信息</button>
+      <span id="userSyncMeta" class="hint"></span>
+    </div>
+    <div class="batch-progress" id="userSyncProgress"></div>
+  </div>
+
+  <div class="batch-section">
     <h3>📦 批量加载用户</h3>
     <div class="controls">
       <label for="batchFrom">起始 ID:</label>
@@ -85,6 +95,6 @@
   </div>
 
   <<script src="js/deps.js"></script>
-  <script src="js/loader.js" data-entry="cacheManager,batchLoader,recalcPBs"></script>
+  <script src="js/loader.js" data-entry="cacheManager,batchLoader,recalcPBs,userCache,userSyncUI"></script>
 </body>
 </html>

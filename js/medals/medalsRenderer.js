@@ -1,6 +1,7 @@
 /** 奖牌榜的行渲染。相同 timems 共享同一名次；数值列应用色阶。 */
 const MedalsRenderer = {
-  render(records, level) {
+  render(records, level, userMap) {
+    userMap = userMap || new Map();
     const tbody = document.getElementById('medalBody');
     if (!records.length) {
       tbody.innerHTML = `<tr><td colspan="6" class="medal-empty">
@@ -26,21 +27,20 @@ const MedalsRenderer = {
       const s = PBFormat.stnb(level.stnbC, r.bv, r.timems);
       const upload = Utils.fmtDateTime(r.upload_time);
 
-      const uid = PBFormat.escapeHtml(r.userId ?? '?');
-      const name = PBFormat.escapeHtml(r.player ?? '未知');
+      const uid = String(r.userId ?? '?');
+      const label = UserLabel.format(uid, userMap.get(uid));
 
-      const rankStyle  = ColorScale.styleFor(rank, 'rank');
-      const timeStyle  = ColorScale.styleFor(timeSec, timeScale);
-      const bvsStyle   = ColorScale.styleFor(bvsVal, 'bvs');
-      const stnbStyle  = ColorScale.styleFor(stnbVal, 'stnb');
+      const rankStyle = ColorScale.styleFor(rank, 'rank');
+      const timeStyle = ColorScale.styleFor(timeSec, timeScale);
+      const bvsStyle  = ColorScale.styleFor(bvsVal, 'bvs');
+      const stnbStyle = ColorScale.styleFor(stnbVal, 'stnb');
 
-      const sc = (s) => s ? ` style="${s}"` : '';
+      const sc = s => s ? ` style="${s}"` : '';
 
       return `<tr>
         <td class="medal-rank"${sc(rankStyle)}>${this.medalIcon(rank)}</td>
         <td>
-          <a class="user-link" href="stats.html?user_id=${uid}">#${uid}</a>
-          <span class="user-name">${name}</span>
+          <a class="user-link" href="stats.html?user_id=${uid}">${label}</a>
         </td>
         <td class="num"${sc(timeStyle)}>${PBFormat.escapeHtml(t)}</td>
         <td class="num"${sc(bvsStyle)}>${PBFormat.escapeHtml(bvs)}</td>

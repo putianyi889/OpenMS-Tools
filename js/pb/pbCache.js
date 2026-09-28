@@ -24,12 +24,11 @@ const PBCache = (() => {
     await CacheDB.run([S], 'readwrite', t => {
       const store = t.objectStore(S);
       const idx = store.index('userId');
-      const cur = idx.openCursor(IDBKeyRange.only(uid));
-      cur.onsuccess = e => {
-        const c = e.target.result;
-        if (c) { c.delete(); c.continue(); }
+      const keysReq = idx.getAllKeys(IDBKeyRange.only(uid));
+      keysReq.onsuccess = () => {
+        for (const key of keysReq.result) store.delete(key);
+        for (const r of records) store.put(r);
       };
-      for (const r of records) store.put(r);
     });
     return records.length;
   }

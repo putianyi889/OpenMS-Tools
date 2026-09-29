@@ -19,13 +19,67 @@
     <h3>前端成绩 - 取前 N 名</h3>
     <p class="hint">
       每个用户的 9 个桶（bt/bb/bs · it/ib/is · et/eb/es）取前 N 名的均值。
-      修改后将立即重算所有用户的前端成绩缓存。
+      修改后将立即重算所有用户的前端成绩，并自动刷新 NT 锚点。
     </p>
     <div class="controls">
       <label for="topNInput">N =</label>
       <input type="number" id="topNInput" min="1" max="100" value="5" style="width:80px;">
       <button onclick="saveTopN()">保存并重算</button>
       <span class="status" id="topNStatus"></span>
+    </div>
+  </div>
+
+  <div class="settings-section">
+    <h3>NT 锚点 - 取前 N 名</h3>
+    <p class="hint">
+      对前端成绩的九列各取前 N 名求平均，结果即 NT 锚点（软实力 100 的基准）。
+      点击「保存并重算」总是重新计算一次 NT。重算前端成绩时也会自动刷新 NT。
+    </p>
+    <div class="controls">
+      <label for="ntNInput">N =</label>
+      <input type="number" id="ntNInput" min="1" max="500" value="20" style="width:80px;">
+      <button onclick="saveNTN()">保存并重算</button>
+      <span class="status" id="ntNStatus"></span>
+    </div>
+    <div class="hint info" id="ntPreview"></div>
+  </div>
+
+  <div class="settings-section">
+    <h3>软实力权重</h3>
+    <p class="hint">
+      每级别的软实力 = 该级别 time/bvs/stnb 三个软实力的加权平均；
+      总软实力 = 三个级别软实力的加权平均（等级权重 = 该等级三个权重之和）。
+      总和不必为 1。
+    </p>
+    <table class="weights-table">
+      <thead>
+        <tr><th></th><th>time</th><th>bvs</th><th>stnb</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>B 级</td>
+          <td><input type="number" id="w-b-t" step="0.01" min="0"></td>
+          <td><input type="number" id="w-b-b" step="0.01" min="0"></td>
+          <td><input type="number" id="w-b-s" step="0.01" min="0"></td>
+        </tr>
+        <tr>
+          <td>I 级</td>
+          <td><input type="number" id="w-i-t" step="0.01" min="0"></td>
+          <td><input type="number" id="w-i-b" step="0.01" min="0"></td>
+          <td><input type="number" id="w-i-s" step="0.01" min="0"></td>
+        </tr>
+        <tr>
+          <td>E 级</td>
+          <td><input type="number" id="w-e-t" step="0.01" min="0"></td>
+          <td><input type="number" id="w-e-b" step="0.01" min="0"></td>
+          <td><input type="number" id="w-e-s" step="0.01" min="0"></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="controls">
+      <button onclick="saveSoftWeights()">保存</button>
+      <button onclick="resetSoftWeights()">恢复默认</button>
+      <span class="status" id="softWeightStatus"></span>
     </div>
   </div>
 

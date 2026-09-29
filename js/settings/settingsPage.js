@@ -66,20 +66,13 @@ async function saveTopN() {
     return;
   }
 
-  const old = FrontendScores.getTopN();
   FrontendScores.setTopN(v);
-
-  if (old === v) {
-    status.textContent = '未变化';
-    status.className = 'status';
-    return;
-  }
-
   status.textContent = '重算中...';
   status.className = 'status';
   try {
-    const r = await FrontendScores.recalcAll();
-    status.textContent = `✓ 完成，已更新 ${r.ok} 个用户` + (r.fail ? ` · 失败 ${r.fail}` : '');
+    const r = await FrontendScores.recalcAll();  // 内部已含 NT 重算
+    status.textContent =
+      `✓ 完成，已更新 ${r.ok} 个用户` + (r.fail ? ` · 失败 ${r.fail}` : '');
     status.className = 'status success';
   } catch (e) {
     status.textContent = `失败: ${e.message}`;
@@ -94,4 +87,115 @@ function initTopNInput() {
 
 if (document.getElementById('topNInput')) {
   initTopNInput();
+}
+
+function fillSoftWeights(w) {
+  for (const lv of ['b', 'i', 'e']) {
+    for (const m of ['t', 'b', 's']) {
+      const el = document.getElementById(`w-${lv}-${m}`);
+      if (el) el.value = w[lv][m];
+    }
+  }
+}
+
+function readSoftWeights() {
+  const w = {};
+  for (const lv of ['b', 'i', 'e']) {
+    w[lv] = {};
+    for (const m of ['t', 'b', 's']) {
+      const el = document.getElementById(`w-${lv}-${m}`);
+      const v = parseFloat(el.value);
+      if (!Number.isFinite(v) || v < 0) {
+        throw new Error(`${lv}.${m} 无效`);
+      }
+      w[lv][m] = v;
+    }
+  }
+  return w;
+}
+
+function saveSoftWeights() {
+  const status = document.getElementById('softWeightStatus');
+  try {
+    const w = readSoftWeights();
+    SoftPower.setWeights(w);
+    status.textContent = '✓ 已保存';
+    status.className = 'status success';
+  } catch (e) {
+    status.textContent = '保存失败: ' + e.message;
+    status.className = 'status error';
+  }
+}
+
+function resetSoftWeights() {
+  if (!confirm('恢复默认软实力权重？')) return;
+  SoftPower.clearWeights();
+  fillSoftWeights(SoftPower.getWeights());
+  const status = document.getElementById('softWeightStatus');
+  status.textContent = '已恢复默认';
+  status.className = 'status';
+}
+
+if (document.getElementById('w-b-t')) {
+  fillSoftWeights(SoftPower.getWeights());
+}
+
+/* ---------------- NT 前 N 名 ---------------- */
+
+function updateNTPreview() {
+  const el = document.getElementById('ntPreview');
+  if (!el) return;
+  const nt = FrontendNT.get();
+  if (!nt) {
+    el.textContent = '当前：未生成 NT（请先重算前端成绩）';
+    el.classList.remove('ok');
+    return;
+  }
+  const sample = ['bt', 'bb', 'bs']
+    .map(k => `${k}=${nt[k] != null ? nt[k].toFixed(3) : '—'}`)
+    .join(' · ');
+  el.textContent = `当前：${sample} · … · 前 ${FrontendNT.getN()} 名`;
+  el.classList.add('ok');
+}
+
+async function saveNTN() {
+  const input = document.getElementById('ntNInput');
+  const status = document.getElementById('ntNStatus');
+  const v = parseInt(input.value, 10);
+
+  if (!Number.isFinite(v) || v < 1 || v > FrontendNT.MAX_N) {
+    status.textContent = `请输入 1-${FrontendNT.MAX_N} 之间的整数`;
+    status.className = 'status error';
+    return;
+  }
+
+  FrontendNT.setN(v);
+  status.textContent = '重算中...';
+  status.className = 'status';
+  try {
+    const rows = await FrontendScores.getAll();
+    if (!rows.length) {
+      status.textContent = '无前端成绩缓存，无法重算';
+      status.className = 'status error';
+      return;
+    }
+    FrontendNT.computeAndSave(rows);
+    status.textContent = `✓ 已重算（基于 ${rows.length} 位用户）`;
+    status.className = 'status success';
+    updateNTPreview();
+  } catch (e) {
+    status.textContent = `失败: ${e.message}`;
+    status.className = 'status error';
+  }
+}
+
+function initNTInput() {
+  const input = document.getElementById('ntNInput');
+  if (!input) return;
+  input.value = FrontendNT.getN();
+  updateNTPreview();
+}
+
+if (document.getElementById('ntNInput')) {
+  initNTInput();
 }

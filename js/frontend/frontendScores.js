@@ -121,6 +121,15 @@ const FrontendScores = (() => {
       done++;
       onProgress && onProgress({ done, total: lists.length, current: uid, ok, fail });
     }
+
+    // 前端成绩全量写完 → 立即刷新 NT 锚点
+    try {
+      const all = await getAll();
+      FrontendNT.computeAndSave(all);
+    } catch (e) {
+      console.warn('NT 重算失败', e);
+    }
+
     return { total: lists.length, ok, fail };
   }
 

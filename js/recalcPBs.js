@@ -80,7 +80,7 @@ async function recalcEverything() {
 
   try {
     // 阶段 1：重算 PB（清空 rank 和 support）
-    renderPhaseText(progressId, '阶段 1/3 · 重算 PB...');
+    renderPhaseText(progressId, '阶段 1/4 · 重算 PB...');
     await new Promise(r => setTimeout(r, 0)); // 让 UI 先刷新一帧
     const r1 = await PBCache.recalcAll(PB_LEVELS, p =>
       renderProgressBar(progressId, {
@@ -91,7 +91,7 @@ async function recalcEverything() {
     );
 
     // 阶段 2：刷新排行
-    renderPhaseText(progressId, '阶段 2/3 · 刷新排行...');
+    renderPhaseText(progressId, '阶段 2/4 · 刷新排行...');
     await new Promise(r => setTimeout(r, 0));
     const r2 = await PBCache.recalcAllRanks(p =>
       renderProgressBar(progressId, {
@@ -102,7 +102,7 @@ async function recalcEverything() {
     );
 
     // 阶段 3：重算支撑线
-    renderPhaseText(progressId, '阶段 3/3 · 重算支撑线...');
+    renderPhaseText(progressId, '阶段 3/4 · 重算支撑线...');
     await new Promise(r => setTimeout(r, 0));
     const r3 = await recalcAllSupportLines(PB_LEVELS, p =>
       renderProgressBar(progressId, {
@@ -112,8 +112,8 @@ async function recalcEverything() {
       })
     );
 
-    // 阶段 4：前端成绩
-    renderPhaseText(progressId, '阶段 4/4 · 前端成绩...');
+    // 阶段 4：前端成绩 + NT（recalcAll 内部会刷新 NT）
+    renderPhaseText(progressId, '阶段 4/4 · 前端成绩 + NT...');
     await new Promise(r => setTimeout(r, 0));
     const r4 = await FrontendScores.recalcAll(p =>
       renderProgressBar(progressId, {

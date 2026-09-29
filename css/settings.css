@@ -68,3 +68,38 @@
 .settings-section .hint.info.ok {
   color: #58a6ff;
 }
+
+.weights-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 10px;
+}
+.weights-table th,
+.weights-table td {
+  padding: 4px 8px;
+  text-align: center;
+  color: #c9d1d9;
+  font-size: 0.85rem;
+}
+.weights-table th {
+  color: #8b949e;
+  font-weight: 500;
+  border-bottom: 1px solid #30363d;
+}
+.weights-table td:first-child {
+  text-align: left;
+  color: #8b949e;
+}
+.weights-table input[type="number"] {
+  width: 72px;
+  background: #0f1117;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  color: #e1e4e8;
+  padding: 4px 8px;
+  font-family: inherit;
+  font-size: 0.85rem;
+  outline: none;
+  text-align: right;
+}
+.weights-table input[type="number"]:focus { border-color: #58a6ff; }

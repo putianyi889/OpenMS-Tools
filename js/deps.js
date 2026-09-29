@@ -43,7 +43,7 @@ window.DEPS = {
   'tablePage': { src: 'js/table.js', deps: ['utils', 'api'] },
   'settingsPage': {
     src: 'js/settings/settingsPage.js',
-    deps: ['pbWeights', 'frontendScores'],
+    deps: ['pbWeights', 'frontendScores', 'frontendNT', 'softPower'],
   },
 
   /* 奖牌榜 */
@@ -106,20 +106,32 @@ window.DEPS = {
   /* 前端成绩 */
   'frontendScores': {
     src: 'js/frontend/frontendScores.js',
-    deps: ['cacheDb', 'pbLevels', 'pbCache'],
+    deps: ['cacheDb', 'pbLevels', 'pbCache', 'frontendNT'],
+  },
+  'frontendNT': {
+    src: 'js/frontend/frontendNT.js',
+    deps: [],
+  },
+  'softPower': {
+    src: 'js/frontend/softPower.js',
+    deps: [],
   },
   'frontendRankPage': {
     src: 'js/frontend/frontendRankPage.js',
     deps: ['utils', 'userCache', 'userLabel', 'colorscale',
-           'pbLevels', 'pbCache', 'frontendScores'],
+           'pbLevels', 'pbCache', 'frontendScores',
+           'frontendNT', 'softPower'],
   },
 
   /* 缓存管理 */
   'cacheManager': { src: 'js/cacheManager.js',
                     deps: ['utils', 'cacheDb', 'cache', 'userCache', 'userLabel'] },
   'batchLoader':  { src: 'js/batchLoader.js',  deps: ['utils', 'api', 'cache'] },
-  'recalcPBs':    { src: 'js/recalcPBs.js',
-                    deps: ['utils', 'pbCache', 'pbLevels', 'supportLine'] },
+  'recalcPBs': {
+    src: 'js/recalcPBs.js',
+    deps: ['utils', 'pbCache', 'pbLevels', 'supportLine',
+           'progressUI', 'frontendScores', 'frontendNT'],
+  },
 
   /* 用户信息缓存 */
   'userCacheDb': { src: 'js/userCacheDb.js', deps: [] },
@@ -134,7 +146,7 @@ window.DEPS = {
   'recalcPBs': {
     src: 'js/recalcPBs.js',
     deps: ['utils', 'pbCache', 'pbLevels', 'supportLine',
-           'progressUI', 'frontendScores'],
+           'progressUI', 'frontendScores', 'frontendNT'],
   },
   'userSyncUI': { src: 'js/userSyncUI.js',
                   deps: ['utils', 'userCache', 'progressUI'] },

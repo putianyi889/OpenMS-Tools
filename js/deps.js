@@ -41,7 +41,10 @@ window.DEPS = {
            'chartMode', 'chartState', 'chartTimems'],
   },
   'tablePage': { src: 'js/table.js', deps: ['utils', 'api'] },
-  'settingsPage': { src: 'js/settings/settingsPage.js', deps: ['pbWeights'] },
+  'settingsPage': {
+    src: 'js/settings/settingsPage.js',
+    deps: ['pbWeights', 'frontendScores'],
+  },
 
   /* 奖牌榜 */
   'medalsRenderer': { src: 'js/medals/medalsRenderer.js',
@@ -100,6 +103,17 @@ window.DEPS = {
                     deps: ['utils', 'colorscale', 'pbLevels', 'pbCache',
                            'supportLine', 'tierLoader', 'tierRenderer', 'tierLines'] },
 
+  /* 前端成绩 */
+  'frontendScores': {
+    src: 'js/frontend/frontendScores.js',
+    deps: ['cacheDb', 'pbLevels', 'pbCache'],
+  },
+  'frontendRankPage': {
+    src: 'js/frontend/frontendRankPage.js',
+    deps: ['utils', 'userCache', 'userLabel', 'colorscale',
+           'pbLevels', 'pbCache', 'frontendScores'],
+  },
+
   /* 缓存管理 */
   'cacheManager': { src: 'js/cacheManager.js',
                     deps: ['utils', 'cacheDb', 'cache', 'userCache', 'userLabel'] },
@@ -117,8 +131,11 @@ window.DEPS = {
   'progressUI': { src: 'js/progressUI.js', deps: [] },
 
   /* 缓存管理页的 UI 脚本 */
-  'recalcPBs':  { src: 'js/recalcPBs.js',
-                  deps: ['utils', 'pbCache', 'pbLevels', 'supportLine', 'progressUI'] },
+  'recalcPBs': {
+    src: 'js/recalcPBs.js',
+    deps: ['utils', 'pbCache', 'pbLevels', 'supportLine',
+           'progressUI', 'frontendScores'],
+  },
   'userSyncUI': { src: 'js/userSyncUI.js',
                   deps: ['utils', 'userCache', 'progressUI'] },
 };

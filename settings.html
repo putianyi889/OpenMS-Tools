@@ -11,14 +11,28 @@
 <body>
   <h1>设置</h1>
   <p class="subtitle">
-    PB 权重配置 · 
+    前端成绩取前 N 名 · PB 权重配置 · 
     <a href="index.html" style="color:#58a6ff;">返回导航</a>
   </p>
+
+  <div class="settings-section">
+    <h3>前端成绩 - 取前 N 名</h3>
+    <p class="hint">
+      每个用户的 9 个桶（bt/bb/bs · it/ib/is · et/eb/es）取前 N 名的均值。
+      修改后将立即重算所有用户的前端成绩缓存。
+    </p>
+    <div class="controls">
+      <label for="topNInput">N =</label>
+      <input type="number" id="topNInput" min="1" max="100" value="5" style="width:80px;">
+      <button onclick="saveTopN()">保存并重算</button>
+      <span class="status" id="topNStatus"></span>
+    </div>
+  </div>
 
   <div class="settings-section" data-level="b">
     <h3>B 级权重</h3>
     <p class="hint">
-      输入 JSON 数组，<strong>下标为 bv</strong>（索引 0 保留占位，bv 从 1 开始）。
+      输入 JSON 数组，<strong>下标为 bv</strong>（第一个位置是0bv）。
       值是该 bv 的权重，用于 PB 网格的加权平均列。总和不必为 1，
       算法会按 Σ(v·w)/Σ(w) 归一化。
     </p>

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>前端成绩 - 用户视频数据</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/medals.css">
+</head>
+<body>
+  <h1 id="pageTitle">前端成绩</h1>
+  <p class="subtitle">
+    每用户九桶前 N 均值（N 在「设置」中调整）· 点击表头排序 · 
+    <a href="index.html" style="color:#58a6ff;">返回导航</a>
+  </p>
+
+  <div class="status" id="status"></div>
+
+  <div class="medal-table-section">
+    <table class="medal-table rank-table" id="fsTable">
+      <thead id="fsHead"></thead>
+      <tbody id="fsBody"></tbody>
+    </table>
+  </div>
+
+  <script src="js/deps.js"></script>
+  <script src="js/loader.js" data-entry="frontendRankPage"></script>
+</body>
+</html>

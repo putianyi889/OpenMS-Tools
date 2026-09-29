@@ -4,7 +4,7 @@
  */
 const UserCacheDB = (() => {
   const DB_NAME = 'openms_video_cache';
-  const DB_VERSION = 4;  // 从 3 升到 4，增量添加用户相关 store
+  const DB_VERSION = 5;  // 从 3 升到 4，增量添加用户相关 store
   const STORE_USERS = 'users';
   const STORE_SYNC = 'user_sync';
   const supported = typeof indexedDB !== 'undefined';

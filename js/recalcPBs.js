@@ -73,7 +73,7 @@ async function recalcEverything() {
   if (!btn || btn.disabled) return;
 
   const n = await PBCache.count();
-  if (!confirm('将依次重算：\n1) PB\n2) 排行\n3) 支撑线\n\n是否继续？')) return;
+  if (!confirm('将依次重算：\n1) PB\n2) 排行\n3) 支撑线\n4) 前端成绩\n\n是否继续？')) return;
 
   const progressId = 'recalcAllProgress';
   btn.disabled = true;
@@ -108,6 +108,17 @@ async function recalcEverything() {
       renderProgressBar(progressId, {
         done: p.done, total: p.total,
         updated: p.updated,
+        current: `用户 ${p.current}`,
+      })
+    );
+
+    // 阶段 4：前端成绩
+    renderPhaseText(progressId, '阶段 4/4 · 前端成绩...');
+    await new Promise(r => setTimeout(r, 0));
+    const r4 = await FrontendScores.recalcAll(p =>
+      renderProgressBar(progressId, {
+        done: p.done, total: p.total,
+        ok: p.ok, fail: p.fail,
         current: `用户 ${p.current}`,
       })
     );

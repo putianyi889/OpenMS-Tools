@@ -1,6 +1,6 @@
 const CacheDB = (() => {
   const DB_NAME = 'openms_video_cache';
-  const DB_VERSION = 4;
+  const DB_VERSION = 5;
   const STORE_VIDEOS = 'videos';
   const STORE_LISTS = 'video_lists';
   const STORE_PBS = 'pbs';
@@ -33,6 +33,9 @@ const CacheDB = (() => {
           });
           pbs.createIndex('userId', 'userId', { unique: false });
           pbs.createIndex('level_bv', ['level', 'bv'], { unique: false });
+        }
+        if (!db.objectStoreNames.contains('frontend_scores')) {
+          db.createObjectStore('frontend_scores', { keyPath: 'userId' });
         }
       };
 

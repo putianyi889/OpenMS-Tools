@@ -55,3 +55,43 @@ if (document.getElementById('weight-b')) {
     updateInfo(k);
   }
 }
+
+async function saveTopN() {
+  const input = document.getElementById('topNInput');
+  const status = document.getElementById('topNStatus');
+  const v = parseInt(input.value, 10);
+  if (!Number.isFinite(v) || v < 1 || v > FrontendScores.MAX_TOPN) {
+    status.textContent = `请输入 1-${FrontendScores.MAX_TOPN} 之间的整数`;
+    status.className = 'status error';
+    return;
+  }
+
+  const old = FrontendScores.getTopN();
+  FrontendScores.setTopN(v);
+
+  if (old === v) {
+    status.textContent = '未变化';
+    status.className = 'status';
+    return;
+  }
+
+  status.textContent = '重算中...';
+  status.className = 'status';
+  try {
+    const r = await FrontendScores.recalcAll();
+    status.textContent = `✓ 完成，已更新 ${r.ok} 个用户` + (r.fail ? ` · 失败 ${r.fail}` : '');
+    status.className = 'status success';
+  } catch (e) {
+    status.textContent = `失败: ${e.message}`;
+    status.className = 'status error';
+  }
+}
+
+function initTopNInput() {
+  const input = document.getElementById('topNInput');
+  if (input) input.value = FrontendScores.getTopN();
+}
+
+if (document.getElementById('topNInput')) {
+  initTopNInput();
+}

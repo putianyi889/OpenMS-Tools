@@ -134,9 +134,8 @@ window.DEPS = {
   },
 
   /* 用户信息缓存 */
-  'userCacheDb': { src: 'js/userCacheDb.js', deps: [] },
   'userApi':     { src: 'js/userApi.js',     deps: ['requestQueue'] },
-  'userCache':   { src: 'js/userCache.js',   deps: ['userCacheDb', 'userApi'] },
+  'userCache': { src: 'js/userCache.js', deps: ['cacheDb', 'userApi'] },
   'userLabel':   { src: 'js/userLabel.js',   deps: [] },
 
   /* 公共进度 UI */

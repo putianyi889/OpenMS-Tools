@@ -1,27 +1,26 @@
 const UserCache = (() => {
-  const U = UserCacheDB.STORE_USERS;
-  const S = UserCacheDB.STORE_SYNC;
-  const supported = UserCacheDB.supported;
+  const U = CacheDB.STORE_USERS;
+  const S = CacheDB.STORE_SYNC;
+  const supported = CacheDB.supported;
 
   /* ---------------- 同步元数据 ---------------- */
 
   async function getLastSyncAt() {
     if (!supported) return 0;
     try {
-      const meta = await UserCacheDB.get(S, 'meta');
+      const meta = await CacheDB.get(S, 'meta');
       return meta ? meta.lastSyncAt || 0 : 0;
     } catch { return 0; }
   }
 
   async function setLastSyncAt(ts) {
     if (!supported) return;
-    await UserCacheDB.run([S], 'readwrite', t =>
+    await CacheDB.run([S], 'readwrite', t =>
       t.objectStore(S).put({ key: 'meta', lastSyncAt: ts }));
   }
 
   /* ---------------- 写入 ---------------- */
 
-  /** 把 infobulk 返回的一条记录规范为内部结构 */
   function normalize(u) {
     return {
       userId: String(u.id),
@@ -40,7 +39,7 @@ const UserCache = (() => {
   async function putUsers(users) {
     if (!supported || !Array.isArray(users) || !users.length) return 0;
     let n = 0;
-    await UserCacheDB.run([U], 'readwrite', t => {
+    await CacheDB.run([U], 'readwrite', t => {
       const store = t.objectStore(U);
       for (const u of users) {
         if (u == null || u.id == null) continue;
@@ -61,7 +60,7 @@ const UserCache = (() => {
     for (const id of userIds) {
       const uid = String(id);
       if (result.has(uid)) continue;
-      const cached = await UserCacheDB.get(U, uid);
+      const cached = await CacheDB.get(U, uid);
       if (cached) result.set(uid, cached);
       else missing.push(uid);
     }
@@ -133,26 +132,26 @@ const UserCache = (() => {
 
   async function get(userId) {
     if (!supported) return null;
-    try { return await UserCacheDB.get(U, String(userId)); }
+    try { return await CacheDB.get(U, String(userId)); }
     catch { return null; }
   }
 
   async function getAll() {
     if (!supported) return [];
-    try { return await UserCacheDB.getAll(U); }
+    try { return await CacheDB.getAll(U); }
     catch { return []; }
   }
 
   async function count() {
     if (!supported) return 0;
-    try { return await UserCacheDB.count(U); }
+    try { return await CacheDB.count(U); }
     catch { return 0; }
   }
 
   async function clearAll() {
     if (!supported) return;
-    await UserCacheDB.clearStore(U);
-    await UserCacheDB.clearStore(S);
+    await CacheDB.clearStore(U);
+    await CacheDB.clearStore(S);
   }
 
   return {
